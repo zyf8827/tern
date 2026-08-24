@@ -1,0 +1,20 @@
+# 构建上下文只保留源码，产物在镜像内重新构建
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+apps/server/public/
+data/
+data-e2etest/
+.runs/
+repos/
+tests/
+.git/
+.env
+.env.example
+docker-compose*.yml
+*.log
+docs/
+scripts/
+reports/
+.dockerignore

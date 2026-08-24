@@ -1,0 +1,12 @@
+dist
+build
+node_modules
+pnpm-lock.yaml
+data
+repos
+.runs
+*.mjs
+dist/tern-mcp.mjs
+tests/fixtures
+docs/archive
+docs/opensource-readiness-report.md
