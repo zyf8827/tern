@@ -6,8 +6,9 @@ Tern is a lightweight, distributed platform designed for running Playwright end-
 
 ## Monorepo Layout
 
-- `packages/`: Core libraries and shared utilities
-- `apps/`: Application services (orchestrator, worker agent, dashboard)
+- `packages/sdk`: Client SDK and shared types
+- `packages/`: Additional libraries
+- `apps/`: Application services
 
 ## Getting Started
 
@@ -16,6 +17,9 @@ pnpm install
 pnpm build
 ```
 
-## Status
+## Usage (@tern/sdk)
 
-Scaffolding project structure and initial toolchain.
+```typescript
+import { TernClientStub } from '@tern/sdk';
+const client = new TernClientStub('http://localhost:3000');
+```

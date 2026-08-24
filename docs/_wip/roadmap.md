@@ -1,8 +1,8 @@
 # Tern Architecture Roadmap
 
-- [ ] Monorepo setup (pnpm workspaces)
-- [ ] Shared SDK types and client
-- [ ] Case bundler (frontmatter & esbuild)
+- [x] Monorepo setup (pnpm workspaces)
+- [x] Shared SDK types and client
+- [x] Case bundler (frontmatter parsing)
 - [ ] Central server (SQLite, sync, scheduler)
 - [ ] Worker agent (WebSocket execution)
 - [ ] Playwright runner kit
