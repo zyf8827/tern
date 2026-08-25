@@ -12,7 +12,8 @@
     "build": "pnpm -r build",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "start:server": "pnpm --filter @tern/server start"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.70.1",
@@ -20,5 +21,10 @@
     "eslint": "^10.11.0",
     "prettier": "^3.9.8",
     "typescript": "^5.6.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3"
+    ]
   }
 }

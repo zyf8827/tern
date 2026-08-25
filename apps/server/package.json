@@ -1,0 +1,32 @@
+{
+  "name": "@tern/server",
+  "version": "0.1.0",
+  "description": "Core coordination and scheduling server for Tern E2E testing platform",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "node --watch dist/index.js"
+  },
+  "dependencies": {
+    "@tern/case-bundler": "workspace:*",
+    "@tern/sdk": "workspace:*",
+    "@fastify/multipart": "^9.0.0",
+    "@fastify/static": "^8.0.0",
+    "@fastify/websocket": "^11.0.0",
+    "better-sqlite3": "^12.2.0",
+    "fastify": "^5.0.0",
+    "pino": "^9.5.0",
+    "ulid": "^2.3.0",
+    "ws": "^8.18.0",
+    "yaml": "^2.8.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.5.13",
+    "typescript": "^5.6.3"
+  }
+}

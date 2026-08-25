@@ -1,2 +1,2 @@
 export * from './types.js';
-export * from './client.stub.js';
+export * from './client.js';
