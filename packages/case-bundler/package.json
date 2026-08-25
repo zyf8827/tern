@@ -1,0 +1,21 @@
+{
+  "name": "@tern/case-bundler",
+  "version": "0.1.0",
+  "description": "Frontmatter parser, linter, and esbuild bundler for Tern test cases",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node --test dist/*.test.js"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.0",
+    "yaml": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.3"
+  }
+}
