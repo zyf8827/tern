@@ -1,0 +1,22 @@
+{
+  "name": "@tern/worker",
+  "version": "0.1.0",
+  "description": "Execution worker for Tern E2E testing platform",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@tern/exec-kit": "workspace:*",
+    "@tern/sdk": "workspace:*",
+    "@playwright/test": "1.59.0",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.3"
+  }
+}

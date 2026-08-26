@@ -9,6 +9,7 @@ Tern is a lightweight, distributed platform designed for running Playwright end-
 - `packages/sdk`: Client SDK and shared types
 - `packages/case-bundler`: Case bundler with frontmatter metadata extraction
 - `apps/server`: Fastify orchestrator with SQLite and migrations
+- `apps/worker`: Outbound WebSocket agent running test cases
 
 ## Getting Started
 
@@ -16,4 +17,5 @@ Tern is a lightweight, distributed platform designed for running Playwright end-
 pnpm install
 pnpm build
 pnpm start:server
+pnpm start:worker
 ```
