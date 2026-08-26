@@ -60,7 +60,7 @@ await app.register(multipart, {
 
 app.get('/ws/worker', { websocket: true }, (socket: WebSocket, req) => {
   const ip = req.ip ?? '';
-  // ws placeholder
+  handleWorkerConnection(rt, socket, ip);
 });
 
 app.get('/ws/app', { websocket: true }, (socket: WebSocket, req) => {
