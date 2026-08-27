@@ -9,7 +9,7 @@ import path from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { ApiError } from './errors.js';
 import { getRun } from './queries.js';
-// auth hook placeholder
+import { checkAuthRef, readAuthSnapshot, resolveAuthSpec } from './auth-config.js';
 import { resolveRunSelector, resolveSuiteSelector } from './selector.js';
 import { projectDir, type ProjectRow } from './repos.js';
 import { resolveEnvParams } from './envs.js';
@@ -1263,7 +1263,7 @@ export function createRun(rt: Runtime, payload: CreateRunPayload, createdBy: str
   const badRefs: string[] = [];
   for (const r of refRows) {
     try {
-      // checkAuthRef(authSnapshot, r.auth, `用例 ${r.id}`);
+      checkAuthRef(authSnapshot, r.auth, `用例 ${r.id}`);
     } catch (e) {
       badRefs.push((e as Error).message);
     }
