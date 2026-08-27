@@ -1,0 +1,20 @@
+{
+  "name": "@tern/exec-kit",
+  "version": "0.1.0",
+  "description": "Execution kit, runner, and authentication runtime for Tern worker",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node -e \"require('fs').copyFileSync('src/reporter.cjs','dist/reporter.cjs')\""
+  },
+  "dependencies": {
+    "@tern/sdk": "workspace:*",
+    "playwright-core": "1.59.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.3"
+  }
+}

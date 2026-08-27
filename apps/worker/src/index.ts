@@ -15,8 +15,16 @@ import {
   type ServerMsg,
   type WorkerMsg,
 } from '@tern/sdk';
-// exec-kit runner placeholder
-function runCase(): any { throw new Error('stub'); }
+import {
+  runCase,
+  playwrightCliPathOf,
+  ScreencastSidecar,
+  frameEvent,
+  resolveAuthState,
+  validateAuthState,
+  replaceEnvPlaceholders,
+  AuthError,
+} from '@tern/exec-kit';
 // device-proxy placeholder
 
 const workerDir = path.dirname(fileURLToPath(import.meta.url));
