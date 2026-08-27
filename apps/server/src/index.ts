@@ -56,7 +56,7 @@ await app.register(multipart, {
   limits: { fileSize: 100 * 1024 * 1024, files: 50 },
 });
 
-// registerApi placeholder
+registerApi(app, rt);
 
 app.get('/ws/worker', { websocket: true }, (socket: WebSocket, req) => {
   const ip = req.ip ?? '';
@@ -149,7 +149,7 @@ if (existsSync(publicDir)) {
   });
 }
 
-// attachEventBus placeholder
+attachEventBus(rt);
 
 // ---- 用例项目初始化：发现本地仓库 → git 项目拉取更新 + 全量同步 ----
 // suppressWatch：平台自身的 git 操作（fetch/reset/clean）会触发 fs.watch，
@@ -234,7 +234,7 @@ setInterval(() => {
     for (const r of orphanRuns) {
       if (!rt.runs.has(r.id)) reviveRun(rt, r.id);
     }
-    // schedulerTick placeholder
+    schedulerTick(rt);
   } catch (e) {
     log.error({ err: (e as Error).message }, 'scheduler tick failed');
   }
