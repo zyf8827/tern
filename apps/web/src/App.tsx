@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, STATUS_STYLE, fmtTime } from './lib';
-// CasesPage placeholder
+import { CasesPage, useLive } from './CasesPage';
 import { RunsPage } from './RunsPage';
 import { RunDetailPage } from './RunDetailPage';
 import { ProjectsPage } from './ProjectsPage';
