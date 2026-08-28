@@ -1,0 +1,42 @@
+# 旧格式 tern.yaml（迁移兼容演示）：auth 为多 profile + 拍平前的嵌套形态
+# （form: / api: / storage: 子对象、userSelector 等旧字段）。
+# 平台读取时会归一成新拍平结构（docs/auth-design.md §13），用例 frontmatter 仍写 profile 名。
+name: portal-legacy
+description: 演示项目（旧格式）—— 嵌套 form/api/storage 登录的兼容读取
+casesDir: cases
+defaultTags: [demo]
+
+auth:
+  # 方式一：登录页面表单登录（无头浏览器真实走一遍登录流程，导出 cookie/localStorage）
+  form-login:
+    mode: form
+    form:
+      loginUrl: /login
+      userSelector: '#username'
+      passSelector: '#password'
+      submitSelector: '#login-btn'
+      successUrl: /
+      username: ${ENV:DEMO_USER}
+      password: ${ENV:DEMO_PASS}
+  # 方式二：直接调登录接口，Set-Cookie 自动并入登录态；save 可把响应字段写入 localStorage
+  api-login:
+    mode: api
+    api:
+      url: /api/login
+      method: POST
+      body:
+        username: ${ENV:DEMO_USER}
+        password: ${ENV:DEMO_PASS}
+      save:
+        - origin: ${ENV:BASE_URL}
+          key: token
+          from: token
+  # 方式三：直接写入 cookie / localStorage（适合长期 token 或第三方签发的会话）
+  storage-login:
+    mode: storage
+    storage:
+      cookies:
+        - name: session
+          value: ${ENV:DEMO_SESSION}
+          domain: ${ENV:DEMO_HOST}
+          path: /

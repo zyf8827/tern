@@ -4,9 +4,9 @@
 - [x] Shared SDK types and client
 - [x] Case bundler (frontmatter & esbuild)
 - [x] Central server (SQLite, sync, scheduler)
-- [ ] Worker agent (WebSocket execution)
-- [ ] Playwright runner kit
+- [x] Worker agent (WebSocket execution)
+- [x] Playwright runner kit
+- [x] Auth recipes & secret store
 - [ ] Web dashboard
-- [ ] Auth recipes & secret store
 - [ ] Multi-env suites
 - [ ] CLI & MCP server
