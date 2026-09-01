@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-// trace-view placeholder
+import { parseTraceDir, unzipToDir } from './trace-view.js';
 import path from 'node:path';
 import { cancelRun, createRun, deleteRun, previewRun, rerunRun, type Runtime } from './runtime.js';
 import {

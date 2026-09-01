@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, connectLive, fmtDuration, fmtTime, stripAnsi } from './lib';
 import { Badge, RunStatusBadge, type RunDetail, type RunItem } from './RunsPage';
-// TraceLite placeholder
+import { officialTraceViewerUsable, TraceLiteModal } from './TraceLite';
 import { ShortId } from './ShortId';
 
 interface ExecutionDetail {
