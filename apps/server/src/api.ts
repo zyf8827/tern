@@ -48,7 +48,7 @@ import {
   syncInfo,
   workerInfo,
 } from './queries.js';
-// artifacts placeholder
+import { saveArtifactStream } from './artifacts.js';
 import type {
   CreateRunPayload,
   CreateProjectPayload,
