@@ -31,7 +31,7 @@ import {
   previewSuiteSelector,
   updateSuite,
 } from './suites.js';
-// flaky placeholder
+import { setCaseQuarantine } from './flaky.js';
 import { failureSummary } from './failure-summary.js';
 import { sendWebhook } from './notifier.js';
 import {

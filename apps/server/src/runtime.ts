@@ -14,9 +14,9 @@ import { resolveRunSelector, resolveSuiteSelector } from './selector.js';
 import { projectDir, type ProjectRow } from './repos.js';
 import { resolveEnvParams } from './envs.js';
 import { decryptJson, encryptJson, getSecretKey } from './crypto.js';
-// error-sig placeholder
+import { errorSignature } from './error-sig.js';
 import { stripAnsi } from './ansi.js';
-// flaky placeholder
+import { recordCaseOutcome } from './flaky.js';
 // notifier placeholder
 import type {
   AuthSnapshot,
@@ -737,7 +737,7 @@ export function handleResult(rt: Runtime, workerId: string, msg: ResultMsg): voi
         stack: msg.error.stack ? stripAnsi(msg.error.stack) : msg.error.stack,
       }
     : null;
-  const errorSig = null;
+  const errorSig = errorSignature(cleanError, status);
   db.prepare(
     `UPDATE case_runs SET status=?, flaky=?, finished_at=?, duration_ms=?, error=?, error_sig=?, artifacts=?, started_at=COALESCE(started_at, ?) WHERE id=?`,
   ).run(
@@ -783,7 +783,7 @@ export function handleResult(rt: Runtime, workerId: string, msg: ResultMsg): voi
       item.id,
     );
     // F5 flaky：终态进滚动窗口（flaky = runner 内重试通过 或 run 级 attempt>1 后通过）
-    // recordCaseOutcome(
+    recordCaseOutcome(
       rt,
       item.case_id,
       finalStatus,
