@@ -5,7 +5,7 @@ import { RunsPage } from './RunsPage';
 import { RunDetailPage } from './RunDetailPage';
 import { ProjectsPage } from './ProjectsPage';
 import { SchedulesPage } from './SchedulesPage';
-// SuitesPage placeholder
+import { SuitesPage } from './SuitesPage';
 import { TernLogo } from './Logo';
 import { ShortId } from './ShortId';
 
