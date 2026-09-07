@@ -17,7 +17,7 @@ import { decryptJson, encryptJson, getSecretKey } from './crypto.js';
 import { errorSignature } from './error-sig.js';
 import { stripAnsi } from './ansi.js';
 import { recordCaseOutcome } from './flaky.js';
-// notifier placeholder
+import { notifyRunFinished } from './notifier.js';
 import type {
   AuthSnapshot,
   AuthSpec,
@@ -1920,7 +1920,7 @@ export function recomputeRun(rt: Runtime, batchId: string): void {
   }
   // F7：终态触发钉钉通知（幂等 notified_at；内部 fire-and-forget）
   if (allTerminal && (status === 'completed' || status === 'cancelled')) {
-    // notifyRunFinished(rt, batchId);
+    notifyRunFinished(rt, batchId);
   }
   broadcastRun(rt, batchId);
 }
