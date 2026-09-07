@@ -243,7 +243,7 @@ setInterval(() => {
 // F6：定时任务巡检（15s；错过补跑/防重叠逻辑见 schedules.ts）
 setInterval(() => {
   try {
-    // fireDueSchedules placeholder
+    fireDueSchedules(rt);
   } catch (e) {
     log.error({ err: (e as Error).message }, 'schedule tick failed');
   }

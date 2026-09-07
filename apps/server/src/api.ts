@@ -22,7 +22,7 @@ import {
   listEnvironments,
   updateEnvironment,
 } from './envs.js';
-// schedules placeholder
+import { createSchedule, deleteSchedule, listSchedules, updateSchedule } from './schedules.js';
 import {
   createSuite,
   deleteSuite,
