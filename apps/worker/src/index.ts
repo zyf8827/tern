@@ -25,7 +25,7 @@ import {
   replaceEnvPlaceholders,
   AuthError,
 } from '@tern/exec-kit';
-// device-proxy placeholder
+import { DeviceProxyManager, rewriteInsecureParams } from './device-proxy.js';
 
 const workerDir = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
