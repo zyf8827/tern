@@ -1,0 +1,33 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.zyf8827/tern",
+  "description": "Model Context Protocol (MCP) server for Tern E2E testing platform",
+  "version": "0.3.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@tern/mcp",
+      "version": "0.3.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "TERN_URL",
+          "description": "Base URL of the Tern server instance (defaults to http://127.0.0.1:7430)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "default": "http://127.0.0.1:7430"
+        },
+        {
+          "name": "TERN_TOKEN",
+          "description": "API Bearer token for authenticating with the Tern server",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}

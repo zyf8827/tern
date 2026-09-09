@@ -12,6 +12,7 @@
     "build": "pnpm -r build",
     "build:web": "pnpm --filter @tern/web build",
     "cli:dev": "pnpm --filter @tern/cli dev",
+    "bundle:mcp": "node scripts/bundle-mcp.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

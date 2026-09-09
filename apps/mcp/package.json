@@ -1,0 +1,31 @@
+{
+  "name": "@tern/mcp",
+  "version": "0.3.0",
+  "description": "Model Context Protocol (MCP) server for Tern E2E testing platform",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "tern-mcp": "dist/index.js"
+  },
+  "mcpName": "io.github.zyf8827/tern",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@tern/sdk": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.3"
+  }
+}

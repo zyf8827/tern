@@ -1,23 +1,20 @@
 # Tern
 
-> Distributed Playwright Test Execution Platform
+> Distributed Playwright Test Execution Platform for Coding Agents
 
 Tern is a lightweight, distributed platform designed for running Playwright end-to-end tests across multiple workers.
 
-## Architecture
+## Features
 
-- `packages/sdk`: Client SDK and shared types
-- `packages/case-bundler`: Case bundler with frontmatter metadata extraction
-- `packages/exec-kit`: Playwright runner and reporter
-- `packages/cli`: Tern CLI for sync, run, and status
-- `apps/server`: Fastify orchestrator with SQLite and migrations
-- `apps/worker`: Outbound WebSocket agent running test cases
-- `apps/web`: React management console
+- **Distributed test execution**: WebSocket workers with concurrency management
+- **Dynamic case bundling**: Fast frontmatter parser and esbuild bundler
+- **MCP Server**: Model Context Protocol tools for AI coding agents
+- **CLI & Web UI**: Full visibility into test runs and artifacts
 
-## CLI Usage
+## Quickstart
 
 ```bash
-tern sync
-tern run --all
-tern status
+pnpm install
+pnpm build
+pnpm start:server
 ```
