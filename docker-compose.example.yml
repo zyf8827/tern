@@ -1,0 +1,100 @@
+# Tern 部署编排模板（实例文件不入库）：由 scripts/init-compose.sh 生成为 ./docker-compose.yml
+#   bash scripts/init-compose.sh          # 交互问答 → 生成 docker-compose.yml + .env（均已 gitignore）
+#   cd 到仓库根 && docker compose up -d   # 1 server + N worker（副本数见 .env 的 WORKER_REPLICAS）
+# 也可手工复制本文件为 docker-compose.yml 后按需修改；改 .env 中的变量即可换端口/副本数，无需重新生成。
+#
+# 用例项目（git 仓库）在 Web「项目」页添加，由 server clone 到 /app/repos 并定期强制拉取；
+# 也可以把含 tern.yaml 的目录手工放进宿主机 ./repos（自动发现注册）。
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: docker/server.Dockerfile
+      args:
+        APT_MIRROR: ${APT_MIRROR:-}
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmjs.org}
+    image: ${SERVER_IMAGE:-tern-server:latest}
+    container_name: tern-server
+    ports:
+      - '${SERVER_PORT:-7430}:7430'
+    environment:
+      WORKER_TOKEN: ${WORKER_TOKEN:?请先运行 scripts/init-compose.sh 生成 .env 并设置 WORKER_TOKEN}
+      SYNC_WATCH: 'true'
+      # 数据/仓库目录对准下方卷挂载点（镜像内默认 DATA_DIR=/data 是匿名卷，必须显式覆盖才能持久化到宿主机）
+      DATA_DIR: /app/data
+      REPOS_DIR: /app/repos
+      # 容器以 root 运行 git；映射宿主机 repos（属主非 root）时需放开 safe.directory
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: '*'
+      # git 项目默认自动拉取间隔（秒），单个项目可在页面覆盖；0 = 禁用
+      PULL_INTERVAL_SEC: ${PULL_INTERVAL_SEC:-300}
+      # 对外可达地址：钉钉通知等消息里的「查看详情」链接用它拼（init-compose 自动探测宿主 IP 生成）
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # 最小 API 防护：设置后所有写操作要求 Bearer 认证（init-compose 可选开启，取消下行注释生效）
+      # API_TOKEN: ${API_TOKEN:-}
+    volumes:
+      - ${HOST_REPOS_DIR:-./repos}:/app/repos # 用例项目仓库（宿主机路径可在 .env 的 HOST_REPOS_DIR 配置）
+      - ${HOST_DATA_DIR:-./data}:/app/data # SQLite / bundle / 执行产物（HOST_DATA_DIR）
+      # ---- 源码热替换（init-compose 可选开启后自动取消注释）----
+      # 挂载宿主机构建产物：改代码后宿主机 pnpm -r build，再 docker compose restart server 即生效，不需重建镜像。
+      # 要求宿主机已 pnpm install && pnpm -r build（apps/server/public 为 web 构建产物）。
+      # - ./apps/server/dist:/app/dist
+      # - ./apps/server/public:/app/public
+      # - ./packages/sdk/dist:/app/node_modules/@tern/sdk/dist
+      # - ./packages/case-bundler/dist:/app/node_modules/@tern/case-bundler/dist
+    # Linux 下让 server 容器可通过 host.docker.internal 访问宿主机（如宿主机上的 git 仓库/内网 git 服务）
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:7430/api/v1/meta').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+      args:
+        PLAYWRIGHT_IMAGE: ${PLAYWRIGHT_IMAGE:-mcr.microsoft.com/playwright:v1.59.0-jammy}
+        APT_MIRROR: ${APT_MIRROR:-}
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmjs.org}
+    image: ${WORKER_IMAGE:-tern-worker:latest}
+    environment:
+      SERVER_URL: http://server:7430
+      WORKER_TOKEN: ${WORKER_TOKEN:?请先运行 scripts/init-compose.sh 生成 .env 并设置 WORKER_TOKEN}
+      MAX_SLOTS: ${WORKER_MAX_SLOTS:-1}
+      # 用例登录凭据（${ENV:XXX} 占位符）在此注入；也可用批次参数逐批提供
+      # DEMO_USER: demo-user
+      # DEMO_PASS: demo-pass
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    depends_on:
+      server:
+        condition: service_healthy
+    # Linux 下让 worker 容器可通过 host.docker.internal 访问宿主机服务（如演示站点/被测系统）
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    # Chromium 建议 ≥1GB 共享内存，避免多标签页/大页面下崩溃
+    shm_size: '1gb'
+    volumes:
+      - ${HOST_DATA_DIR:-./data}/runs:/data/runs # worker 执行 scratch（宿主机可查看，路径随 HOST_DATA_DIR）
+      # ---- 源码热替换（init-compose 可选开启后自动取消注释）----
+      # 挂载宿主机构建产物：改代码后宿主机 pnpm -r build，再 docker compose restart worker 即生效，不需重建镜像。
+      # - ./apps/worker/dist:/app/dist
+      # - ./packages/sdk/dist:/app/node_modules/@tern/sdk/dist
+      # - ./packages/exec-kit/dist:/app/node_modules/@tern/exec-kit/dist
+    # worker 副本数：改 .env 的 WORKER_REPLICAS 后 up 即生效；临时扩容也可 up -d --scale worker=N
+    deploy:
+      replicas: ${WORKER_REPLICAS:-1}
+    restart: unless-stopped

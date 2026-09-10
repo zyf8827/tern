@@ -1,7 +1,23 @@
 node_modules/
 dist/
-.turbo/
-.DS_Store
+coverage/
 *.log
 .env
-.env.*.local
+.DS_Store
+.eslintcache
+
+# 部署实例文件：由 scripts/init-compose.sh 从 *.example 模板生成，按机器配置落地，不入库
+docker-compose.yml
+
+# 运行时数据（SQLite、bundle 缓存、执行产物）
+data/
+data-e2etest/
+
+# Worker 本地运行目录
+.runs/
+
+# web 构建产物（由 server 托管，构建时拷贝）
+apps/server/public/
+
+# 用例项目仓库（git clone / 本地放置，由 server 管理）
+repos/
