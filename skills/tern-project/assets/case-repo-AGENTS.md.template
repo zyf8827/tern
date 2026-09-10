@@ -1,0 +1,24 @@
+# AGENTS.md —— 用例编写指南（<项目名> 项目）
+
+本仓库是 Tern 平台的用例项目 **<项目名>**（被测对象：<被测系统>）。完整用例规范以 Tern 平台仓库的 `AGENTS.md` 与本仓库 `tern.yaml` 注释为准，此处只列本仓库要点。
+
+## 写用例
+
+1. 在 `cases/<分组>/<case-name>.spec.ts` 新建文件（小写 kebab-case；`_` 前缀目录是共享工具库，不参与调度）。
+2. 头部 `@tern` 注释块必填 `title`；`description`/`tags`/`module`/`version`/`auth`/`timeout`/`devices` 等可选。**YAML 值里不要出现裸 `: `**（会被当成嵌套映射，sync 报 `META - frontmatter YAML 解析失败`）。
+3. 正文用原生 Playwright 语法；可 import `@playwright/test`、`node:` 内置、相对路径、`package.json` dependencies 里声明的包；**禁止 import 平台内部模块**。
+4. **测试资产引用只认字符串字面量**：`ternAsset('audio/x.wav')` 必须直接写在使用它的用例文件里（frontmatter `devices:` 同理）；不要把 `ternAsset` 包进 `_lib` 函数用参数传相对路径——资产不会随运行下发。
+5. 对新断言的接口，先在真实环境 `curl` 一次看响应结构再写断言（前端代码注释可能与真实结构不符）；组件库断言注意坑（antd Radio 视觉隐藏用 toBeChecked、文案多处命中加 .first()、弹窗 Upload 用 DataTransfer 派发 change）。踩坑细节见 skill 的 `references/case-pitfalls.md`。
+6. push 到远端后：`tern projects sync <项目名>`（或 MCP `tern_sync_project`）生效并看 lint/编译结果。
+7. 运行：`tern run --project <项目名> --wait`，失败看 `tern failures <runId>` / MCP `tern_get_screenshot`；`retry-failed` 继承原 run 参数快照，改环境值后要发新 run 验证。
+
+## 本项目登录与环境
+
+- 登录配方在 `tern.yaml`（用例不写登录流程）。frontmatter `auth:` 不写 = default 账号；`auth: none` 不登录；`auth: admin` = admin 账号。
+- 运行参数：`BASE_URL=<被测系统地址>`，以及配方里 `${ENV:...}` 引用的凭据变量。
+- 声明了 auth 的用例，`page` 已带登录态；`page.request` 与页面共享 cookie。
+
+## 日常回归
+
+- 固定要反复跑的组合（冒烟、模块回归、特定环境/账号的成组用例）→ 平台侧**测试集**（`tern suites <项目名> create …`，绑定 env/account），运行按集发起：`tern run --project <项目名> --suite <集名> --wait`。测试集是平台数据，不属于本仓库；本仓库只保证 `module`/`tags`/`version` 维度准确，测试集对它们做组合引用。
+- 临时排查/一次性验证直接点名：`tern run --case <caseId> --wait`，不要为单次需求动用例维度或建集。

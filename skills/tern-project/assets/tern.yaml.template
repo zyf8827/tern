@@ -1,0 +1,67 @@
+# Tern 用例项目 meta —— 模板：把 <...> 替换成实际值后删除本行以上的注释
+# name 必填且全局唯一（kebab-case），也是 caseId 第一段；casesDir 默认 cases
+name: <project-name>
+description: <被测系统一句话描述> E2E 用例项目
+casesDir: cases
+defaultTags: [<project-name>]
+
+# 运行变量清单（契约）：换一个环境（dev→staging→prod）值会变的输入都声明在这里；
+# 凭据即使各环境相同也必须走变量（值不进 git）。分类与判定规则见 references/env-variables.md。
+# 清单在仓库；**环境与值在 Tern 平台侧配置**（项目页「环境」或 CLI tern env create，
+# secret 值加密存储不回显），发起运行时按环境名引用（tern run --env / MCP env 参数）。
+# 注意：进清单的变量每个环境都必须配齐（缺值创建运行即报错）；真正可选的输入不进清单，
+# 用例里 process.env.X ?? 默认值 自给默认。
+env:
+  variables:
+    # —— 地址类（BASE_URL 必有：被测系统入口，决定「测什么」；自动作为 Playwright baseURL）——
+    BASE_URL:
+      description: 被测系统地址（前端/门户）
+    # —— 凭据类（secret: true；auth 配方 accounts 引用的每个 ${ENV:VAR} 一个）——
+    <CRED_VAR>:
+      description: <登录凭据说明>
+      secret: true
+    # —— 环境特征类（可选，按需取消注释；用例直调后端/租户/功能开关/测试数据定位）——
+    # API_BASE_URL:
+    #   description: 后端 API 地址（用例直调后端时）
+    # TENANT_ID:
+    #   description: 租户 ID（各环境预置数据不同）
+    # FEATURE_<X>:
+    #   description: 模块 X 开关（环境未部署置 off，用例据此跳过）
+
+# 登录配方（三选一，按被测系统实际情况改；完整字段见 skill 的 references/auth-recipes.md）
+# ── 方式一：接口登录（最常用）───────────────────────────────
+# 相对路径拼接运行参数 BASE_URL；凭据一律 ${ENV:VAR} 占位符，真实值在运行参数里给
+auth:
+  mode: api
+  method: GET                    # 按实际接口改（默认 POST）
+  url: /api/auth/login           # 按实际登录接口改
+  query: {}
+  success:
+    cookie: <SESSION_COOKIE>     # 响应必须种出的会话 cookie 名
+    json: success                # JSON 路径必须为真值（后端业务失败仍 HTTP 200 时必须配）
+  validate: /api/auth/userInfo   # 可选：会话校验接口；失效自动重登
+  reuse: worker                  # 默认即 worker，可省略
+  accounts:                      # 多身份才需要；只有一套凭据时可整段省略
+    default:
+      <CRED_KEY>: ${ENV:<CRED_VAR>}
+    admin:
+      <CRED_KEY>: ${ENV:<ADMIN_CRED_VAR>}
+
+# ── 方式二：表单登录 ────────────────────────────────────────
+# auth:
+#   mode: form
+#   loginUrl: /login
+#   user: '#username'
+#   pass: '#password'
+#   submit: '#login-btn'
+#   username: ${ENV:USER}
+#   password: ${ENV:PASS}
+#   success:
+#     url: '**/home'
+
+# ── 方式三：直写 token ─────────────────────────────────────
+# auth:
+#   mode: storage
+#   cookie:
+#     name: <TOKEN_COOKIE>
+#     value: ${ENV:TOKEN}

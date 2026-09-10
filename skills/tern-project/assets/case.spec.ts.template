@@ -1,0 +1,29 @@
+/**
+ * @tern
+ * title: <模块> - <一句话断言>          # 必填；值里不要出现裸 ": "（半角冒号+空格）
+ * description: <测什么、怎么判定>
+ * tags: [smoke]                        # 自由标签；与 version/module 组成多维筛选
+ * module: <module>                     # 功能模块（可选）
+ * version: <v1.0>                      # 被测系统版本（可选）
+ * auth: admin                          # 不写 = 默认登录；none = 不登录；其他 = 账号/配方名
+ * timeout: 60                          # 秒，可选，默认 120
+ * retries: 0                           # 可选
+ * author: agent
+ */
+import { test, expect } from '@playwright/test';
+
+// 可 import：@playwright/test、node: 内置、相对路径（_lib 工具库）、
+// 用例仓库 package.json dependencies 里声明的包。禁止 import @tern/*。
+// 声明了 auth（非 none）时 page 已带登录态；BASE_URL 已是 page 的 baseURL。
+test('<用例名>', async ({ page }) => {
+  await test.step('打开页面', async () => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    console.log('当前 URL:', page.url());   // console.log 实时回传
+  });
+
+  await test.step('断言', async () => {
+    // 用业务特征断言，不要只断言 URL
+    // expect(page.locator(...)).toBeVisible();
+  });
+});
