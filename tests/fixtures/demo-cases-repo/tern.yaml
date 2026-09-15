@@ -1,0 +1,48 @@
+# Tern 用例项目 meta —— 每个用例 git 仓库的根目录放一个
+# name 必填且全局唯一（kebab-case）；casesDir 默认 cases
+name: portal
+description: 演示项目 —— 拍平登录配方（api mockLogin 主路径 + 多账号）；旧嵌套格式演示见 demo-cases-repo-legacy
+casesDir: cases
+defaultTags: [demo]
+
+# 运行变量清单（契约）：声明本项目需要哪些变量；环境（值集）在平台侧定义
+env:
+  variables:
+    BASE_URL:
+      description: 被测 demo 站点地址
+    CLIENT_ID:
+      description: default 账号 clientId（mockLogin）
+      secret: true
+    ADMIN_CLIENT_ID:
+      description: admin 账号 clientId
+      secret: true
+    AUDITOR_CLIENT_ID:
+      description: auditor 账号 clientId
+      secret: true
+
+# 登录配方（docs/auth-design.md）：单配方（有顶层 mode），不写 auth 的用例默认走它。
+# 接口模拟登录：GET /api/auth/mock-login?clientId=…，成功种 session_token；
+# 业务失败仍是 HTTP 200（success:false），因此必须检查 success 判定而不只是状态码。
+# 凭据一律 ${ENV:VAR} 占位符，值来自本次运行参数 / worker 环境（不进 git、不落库）。
+auth:
+  mode: api
+  method: GET
+  url: /api/auth/mock-login          # 相对路径拼接运行参数 BASE_URL
+  query:
+    clientId: ${account.clientId}   # ${account.x} 从当前账号解析；账号字段本身仍可用 ${ENV:VAR}
+  success:
+    cookie: session_token           # 响应必须种出该 cookie
+    json: success                   # JSON 路径必须为真值
+  validate: /api/auth/findUserLoginInfo   # 缓存会话先校验；失效按原配方重登
+  reuse: worker                     # 默认即 worker：本 run 内同一配方+账号只登一次
+  accounts:                         # clientId 绑定「设备 → 账号」，换身份 = 换 clientId
+    default:
+      clientId: ${ENV:CLIENT_ID}
+    admin:
+      clientId: ${ENV:ADMIN_CLIENT_ID}
+    auditor:
+      clientId: ${ENV:AUDITOR_CLIENT_ID}
+    broken:                         # 演示登录失败路径：未授权设备
+      clientId: ${ENV:BROKEN_CLIENT_ID}
+    ghost:                          # 演示缺变量路径：运行参数未提供时 AuthError 指出变量名
+      clientId: ${ENV:GHOST_CLIENT_ID}

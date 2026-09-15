@@ -10,12 +10,12 @@
   },
   "scripts": {
     "build": "pnpm -r build",
-    "build:web": "pnpm --filter @tern/web build",
-    "cli:dev": "pnpm --filter @tern/cli dev",
-    "docker:build": "bash scripts/docker-build.sh",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "test": "pnpm test:unit && pnpm test:e2e",
+    "test:unit": "node --test packages/case-bundler/dist/*.test.js apps/server/dist/*.test.js packages/exec-kit/dist/*.test.js apps/worker/dist/*.test.js",
+    "test:e2e": "node scripts/e2e-test.mjs",
     "start:server": "pnpm --filter @tern/server start",
     "start:worker": "pnpm --filter @tern/worker start"
   },
