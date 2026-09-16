@@ -1,0 +1,42 @@
+name: Release Assets
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Upload Release Assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.2
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm -r build
+
+      - name: Bundle MCP standalone runner
+        run: node scripts/bundle-mcp.mjs dist/tern-mcp.mjs
+
+      - name: Release to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/tern-mcp.mjs
+          generate_release_notes: true
