@@ -94,7 +94,7 @@ Tern provides official Model Context Protocol (MCP) server integration and an Ag
   "mcpServers": {
     "tern": {
       "command": "npx",
-      "args": ["-y", "@tern/mcp"],
+      "args": ["-y", "@zyf8827/tern-mcp"],
       "env": {
         "TERN_URL": "http://127.0.0.1:7430"
       }
@@ -184,7 +184,7 @@ tern/
 │   ├── server/       # Platform backend (Fastify + WebSocket + SQLite + scheduler)
 │   ├── worker/       # Execution node (WebSocket client + caching + status reporting)
 │   ├── web/          # Management console (React 18 + Vite + Tailwind CSS)
-│   └── mcp/          # Official MCP Server (@tern/mcp)
+│   └── mcp/          # Official MCP Server (@zyf8827/tern-mcp)
 ├── packages/
 │   ├── sdk/          # Shared types and API client (zero-dependency leaf package)
 │   ├── exec-kit/     # Execution harness (Playwright wrapper, auth injection, artifact capture)

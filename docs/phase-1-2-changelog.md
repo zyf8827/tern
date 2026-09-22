@@ -60,7 +60,7 @@
 2. **GitHub Releases 资产自动发布工作流**：
    - 新增 [.github/workflows/release-assets.yml](../.github/workflows/release-assets.yml)：当推送版本 Tag（`v*`）时，自动编译最新代码并打包上传 `dist/tern-mcp.mjs` 到 GitHub Releases 附件中。
 3. **免费资产分发三级阶梯（写入文档）**：
-   - 第一优先级：`npx @tern/mcp`（npm 全球 CDN 分发）。
+   - 第一优先级：`npx @zyf8827/tern-mcp`（npm 全球 CDN 分发）。
    - 第二优先级：GitHub Releases 页面直接下载 `tern-mcp.mjs`。
    - 第三优先级：jsDelivr / GitHub Raw 镜像下载（可选后备）。
 4. **官方 Skill 安装指引落地**：
@@ -132,7 +132,7 @@
    - 本地 Git 历史已被 `git-filter-repo` 重写，所有 commit 的哈希均已发生变化。
    - 按照开源协作规范，必须由拥有仓库写权限的用户在确认本地提交无误后，手动执行 Force-Push。
 2. **未执行 `npm publish`**：
-   - `@tern/mcp` 与其他包已做好发布准备（`publishConfig`、`bin`、`mcpName` 均配置妥当），但未向 npm 官方公共仓库发布任何包。
+   - `@zyf8827/tern-mcp` 与其他包已做好发布准备（`publishConfig`、`bin`、`mcpName` 均配置妥当），但未向 npm 官方公共仓库发布任何包。
 3. **未向 MCP Registry 发起交互式授权与发布**：
    - 真实发布需要 GitHub OAuth 交互认证；我们完成了 `server.json` 生成与 `mcp-publisher validate` 本地实测，未伪造或强行发布。
 
@@ -161,9 +161,9 @@ git push origin main --force
 
 ---
 
-### 步骤 2：发布 `@tern/mcp` 到 npm
+### 步骤 2：发布 `@zyf8827/tern-mcp` 到 npm
 
-如果需要支持全球用户直接通过 `npx -y @tern/mcp` 运行：
+如果需要支持全球用户直接通过 `npx -y @zyf8827/tern-mcp` 运行：
 
 ```bash
 cd /workspace/tern/apps/mcp

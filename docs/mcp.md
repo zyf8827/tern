@@ -8,10 +8,10 @@ Tern Model Context Protocol (MCP) Server 为 Coding Agent（如 Claude Code, Cur
 
 ### 方式 A：通过 npm / npx 运行（推荐）
 
-当 `@tern/mcp` 发布到 npm 后，可直接通过 `npx` 运行：
+当 `@zyf8827/tern-mcp` 发布到 npm 后，可直接通过 `npx` 运行：
 
 ```bash
-npx -y @tern/mcp
+npx -y @zyf8827/tern-mcp
 ```
 
 ### 方式 B：通过 GitHub Release 产物直接运行（零依赖单文件）
@@ -66,7 +66,7 @@ Tern MCP Server 通过环境变量连接 Tern Server：
   "mcpServers": {
     "tern": {
       "command": "npx",
-      "args": ["-y", "@tern/mcp"],
+      "args": ["-y", "@zyf8827/tern-mcp"],
       "env": {
         "TERN_URL": "http://127.0.0.1:7430",
         "TERN_TOKEN": "your-token-if-configured"
@@ -97,7 +97,7 @@ Tern MCP Server 通过环境变量连接 Tern Server：
 添加 MCP 服务器：
 
 ```bash
-claude mcp add tern -- npx -y @tern/mcp
+claude mcp add tern -- npx -y @zyf8827/tern-mcp
 ```
 
 或使用本地文件并指定环境变量：
@@ -112,7 +112,7 @@ claude mcp add tern -e TERN_URL=http://127.0.0.1:7430 -- node /path/to/dist/tern
 
 - **Name**: `tern`
 - **Type**: `command`
-- **Command**: `npx -y @tern/mcp`
+- **Command**: `npx -y @zyf8827/tern-mcp`
 - **Environment Variables**:
   - `TERN_URL`: `http://127.0.0.1:7430`
 
@@ -127,7 +127,7 @@ claude mcp add tern -e TERN_URL=http://127.0.0.1:7430 -- node /path/to/dist/tern
       "id": "tern",
       "command": {
         "path": "npx",
-        "args": ["-y", "@tern/mcp"],
+        "args": ["-y", "@zyf8827/tern-mcp"],
         "env": {
           "TERN_URL": "http://127.0.0.1:7430"
         }

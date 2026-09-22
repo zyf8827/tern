@@ -6,7 +6,7 @@
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "@tern/mcp",
+      "identifier": "@zyf8827/tern-mcp",
       "version": "0.3.0",
       "transport": {
         "type": "stdio"

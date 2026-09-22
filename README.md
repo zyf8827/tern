@@ -94,7 +94,7 @@ Tern 专为 Coding Agent（Claude Code, Cursor, Windsurf, Antigravity, Zed 等�
   "mcpServers": {
     "tern": {
       "command": "npx",
-      "args": ["-y", "@tern/mcp"],
+      "args": ["-y", "@zyf8827/tern-mcp"],
       "env": {
         "TERN_URL": "http://127.0.0.1:7430"
       }
@@ -184,7 +184,7 @@ tern/
 │   ├── server/       # 平台后端（Fastify + WebSocket + SQLite + 调度器 + 静态托管）
 │   ├── worker/       # 分布式执行节点（WebSocket Client + 依赖缓存 + 状态上报）
 │   ├── web/          # 前端控制台（React 18 + Vite + Tailwind CSS）
-│   └── mcp/          # 官方 MCP Server (@tern/mcp)
+│   └── mcp/          # 官方 MCP Server (@zyf8827/tern-mcp)
 ├── packages/
 │   ├── sdk/          # 平台共享类型与 API Client（零依赖叶子包）
 │   ├── exec-kit/     # 执行管理层（Playwright runner 封装、auth 注入、产物采集）

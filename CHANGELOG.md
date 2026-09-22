@@ -13,7 +13,7 @@
   - 建立开源贡献指南 `CONTRIBUTING.md`、行为准则 `CODE_OF_CONDUCT.md`、安全策略 `SECURITY.md` 与 Issue/PR 规范模板。
   - Git 历史全量清洗脱敏，更新作者与提交邮箱为公开邮箱 `Zhang Yunfei <zyf8827@gmail.com>`。
 - **协议与工具链开源解耦**：
-  - MCP 模块独立打包并规范命名为 `@tern/mcp`，发布标识对齐 MCP Registry：`io.github.zyf8827/tern`。
+  - MCP 模块独立打包并规范命名为 `@zyf8827/tern-mcp`，发布标识对齐 MCP Registry：`io.github.zyf8827/tern`。
   - 准备官方 MCP Registry 描述规范文件 `server.json` 并通过 `mcp-publisher` 验证。
   - 官方 Agent Skill `tern-project` 正式集成入主仓库 `skills/tern-project/`，提供 `npx skills add` 与手动安装双通道指引。
   - 镜像构建与初始化脚本解耦：全面默认官方上游源（npm / Debian / Ubuntu），中国镜像转为可选环境变量。

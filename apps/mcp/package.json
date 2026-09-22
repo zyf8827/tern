@@ -1,5 +1,5 @@
 {
-  "name": "@tern/mcp",
+  "name": "@zyf8827/tern-mcp",
   "version": "0.3.0",
   "description": "Model Context Protocol (MCP) server for Tern E2E testing platform",
   "license": "Apache-2.0",
