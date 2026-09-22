@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { rmSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import Database from 'better-sqlite3';
+import { createSqlDb, type SqlDb } from './sql-db.js';
 import { MIGRATIONS, runMigrations } from './migrations.js';
 import { syncProjectAssets, lintCaseAssets, activeAssetMap } from './assets.js';
 import type { PrepareCaseResult } from '@tern/case-bundler';
@@ -17,7 +17,7 @@ function tmpRt(): { rt: Runtime; dir: string; close: () => void } {
   rmSync(dir, { recursive: true, force: true });
   // 项目仓库根 = <reposDir>/<项目名>（assetsRoot 按 dir_name ?? name 解析）
   mkdirSync(path.join(dir, 'portal', 'cases', '_assets', 'audio'), { recursive: true });
-  const db = new Database(path.join(dir, 'platform.db'));
+  const db = createSqlDb({ dialect: 'sqlite', sqlitePath: path.join(dir, 'platform.db') });
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
   runMigrations(db, MIGRATIONS);

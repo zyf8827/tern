@@ -1,7 +1,7 @@
 // 用例选择解析（docs/test-suite-design.md §3.1）
 // createRun 的 run 级筛选、测试集解析、预览、定时任务共用同一套 WHERE 构造，
 // 保证「所见即所得」：预览命中 = 实际执行命中。
-import type Database from 'better-sqlite3';
+import type { SqlDb } from './sql-db.js';
 import type { SuiteSelector } from '@tern/sdk';
 
 /** run 级筛选维度（CreateRunPayload 的 version/module/tags/tagMode/excludeTags/q 子集） */
@@ -72,7 +72,7 @@ export function buildCaseWhere(dims: SelectorDims): { where: string[]; params: u
 /** run 级选择器解析（既有 createRun 语义：项目内 active 用例 + 筛选 + 隔离默认排除）。
  *  projectName 为 null 时不加项目约束（跨项目筛选，由 createRun 的单项目校验兜底）。 */
 export function resolveRunSelector(
-  db: Database.Database,
+  db: SqlDb,
   projectName: string | null,
   dims: SelectorDims,
   includeQuarantined: boolean,
@@ -97,7 +97,7 @@ export function resolveRunSelector(
  * 空选择器（无筛选、无点名）= 项目全部 active 用例。
  */
 export function resolveSuiteSelector(
-  db: Database.Database,
+  db: SqlDb,
   projectName: string,
   selector: SuiteSelector,
   includeQuarantinedOverride?: boolean,

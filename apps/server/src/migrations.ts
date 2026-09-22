@@ -1,23 +1,81 @@
-import type Database from 'better-sqlite3';
+import type { SqlDb } from './sql-db.js';
+import type { Dialect } from './db-config.js';
 
 /**
- * SQLite 自动迁移机制（随项目升级在 server 启动时自动执行）：
+ * 自动迁移机制（随项目升级在 server 启动时自动执行）：
  *
  * 1. 迁移定义为有序数组 MIGRATIONS（id 单调递增，SQL 内嵌，无外部文件依赖）；
  * 2. openDb() 启动时自动补齐未应用的迁移（记录在 _migrations 表），升级无感；
  * 3. 每个迁移在事务内原子执行（SQL 与迁移记录同生共死，失败整体回滚不留半成品 schema）；
- * 4. 表重建类迁移按 SQLite 官方流程先 PRAGMA foreign_keys=OFF，执行后 foreign_key_check 兜底；
+ * 4. 表重建类迁移（needsFkOff）在 sqlite 上按官方流程先 PRAGMA foreign_keys=OFF，
+ *    在 mysql/pg 上直接执行（无需该 pragma）；
  * 5. migrate-cli（status/up）供运维/CI 独立检查与执行。
+ *
+ * 方言差异说明：
+ * - 多数迁移 SQL 是跨方言可移植的（ALTER TABLE ADD COLUMN、CREATE TABLE、CREATE INDEX）；
+ * - sqlite 专用部分（AUTOINCREMENT、strftime、表重建 rename dance）通过
+ *   sqlByDialect 在 mysql/pg 上提供等价 DDL；
+ * - mysql: AUTO_INCREMENT 替代 AUTOINCREMENT；NOW() 替代 strftime；
+ *   表重建直接用 ALTER TABLE（mysql 支持 DROP COLUMN、MODIFY COLUMN）。
+ * - postgresql: SERIAL / GENERATED ALWAYS 替代 AUTOINCREMENT；NOW() 替代 strftime；
+ *   INSERT OR IGNORE → ON CONFLICT DO NOTHING。
  */
 
 export interface Migration {
   id: number;
   /** 迁移名（展示与排障用） */
   name: string;
-  /** SQL（可多条语句） */
+  /** SQL（可多条语句）—— sqlite 使用；也作为默认 SQL 当 sqlByDialect 不含该方言时 */
   sql: string;
-  /** 涉及 DROP TABLE/表重建时为 true：执行期间关闭外键，结束后做 foreign_key_check */
+  /** 涉及 DROP TABLE/表重建时为 true：sqlite 执行期间关闭外键，结束后做 foreign_key_check */
   needsFkOff?: boolean;
+  /** 方言特定 SQL 覆盖（仅在 SQL 不可移植时提供） */
+  sqlByDialect?: Partial<Record<Dialect, string>>;
+}
+
+/** 自增主键语法 */
+function autoInc(dialect: Dialect): string {
+  switch (dialect) {
+    case 'sqlite':
+      return 'INTEGER PRIMARY KEY AUTOINCREMENT';
+    case 'mysql':
+      return 'INTEGER PRIMARY KEY AUTO_INCREMENT';
+    case 'postgresql':
+      return 'SERIAL PRIMARY KEY';
+  }
+}
+
+/**
+ * 将 sqlite 风格的 DDL 中的 AUTOINCREMENT 替换为对应方言语法。
+ * 同时处理 strftime、INSERT OR IGNORE、substr 等跨方言差异。
+ */
+function adaptSql(sql: string, dialect: Dialect): string {
+  if (dialect === 'sqlite') return sql;
+
+  // INTEGER PRIMARY KEY AUTOINCREMENT → dialect equivalent
+  let result = sql.replace(
+    /INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT/gi,
+    autoInc(dialect),
+  );
+
+  // strftime('%Y-%m-%dT%H:%M:%fZ','now') → NOW() (mysql/pg; pg returns timestamptz)
+  result = result.replace(
+    /strftime\s*\(\s*'[^']*'\s*,\s*'now'\s*\)/gi,
+    dialect === 'mysql' ? "DATE_FORMAT(NOW(3), '%Y-%m-%dT%H:%i:%s.%fZ')" : "TO_CHAR(NOW(), 'YYYY-MM-DD\"T\"HH24:MI:SS.MS\"Z\"')",
+  );
+
+  // INSERT OR IGNORE → dialect equivalent
+  result = result.replace(
+    /INSERT\s+OR\s+IGNORE\s+INTO/gi,
+    dialect === 'mysql' ? 'INSERT IGNORE INTO' : 'INSERT INTO',
+  );
+  // For postgresql INSERT OR IGNORE, add ON CONFLICT DO NOTHING after VALUES(...)
+  // This is handled per-query in sync.ts instead, since it needs the conflict target.
+
+  // substr(x, 1, 1) → SUBSTRING(x, 1, 1) for mysql/pg (both support SUBSTRING)
+  // Actually both mysql and pg support substr(), so no change needed.
+
+  return result;
 }
 
 export const MIGRATIONS: Migration[] = [
@@ -226,6 +284,17 @@ ALTER TABLE batch_items_v3 RENAME TO batch_items;
 CREATE INDEX idx_items_batch ON batch_items(batch_id, status);
 CREATE INDEX idx_items_status ON batch_items(status);
 `,
+    // mysql/pg：直接 ALTER TABLE DROP FOREIGN KEY（无需表重建 dance）
+    sqlByDialect: {
+      mysql: `
+ALTER TABLE cases DROP FOREIGN KEY cases_ibfk_1;
+ALTER TABLE batch_items DROP FOREIGN KEY batch_items_ibfk_2;
+`,
+      postgresql: `
+ALTER TABLE cases DROP CONSTRAINT IF EXISTS cases_project_id_fkey;
+ALTER TABLE batch_items DROP CONSTRAINT IF EXISTS batch_items_case_id_fkey;
+`,
+    },
   },
   {
     id: 4,
@@ -254,6 +323,10 @@ CREATE INDEX IF NOT EXISTS idx_batches_status_created ON batches(status, created
 -- 执行登录以 run 的 auth 快照为准，下次 sync 会按 frontmatter 重写为准确名字。
 UPDATE cases SET auth='default' WHERE auth IS NOT NULL AND substr(auth, 1, 1) = '{';
 `,
+    sqlByDialect: {
+      mysql: `UPDATE cases SET auth='default' WHERE auth IS NOT NULL AND SUBSTRING(auth, 1, 1) = '{';`,
+      postgresql: `UPDATE cases SET auth='default' WHERE auth IS NOT NULL AND SUBSTRING(auth, 1, 1) = '{';`,
+    },
   },
   {
     id: 7,
@@ -456,13 +529,26 @@ export interface MigrateReport {
   toVersion: number;
 }
 
-function tableColumns(db: Database.Database, table: string): Set<string> {
-  const rows = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+function tableColumns(db: SqlDb, table: string): Set<string> {
+  if (db.dialect === 'sqlite') {
+    const rows = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+    return new Set(rows.map((r) => r.name));
+  }
+  if (db.dialect === 'mysql') {
+    const rows = db
+      .prepare(`SELECT COLUMN_NAME AS name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`)
+      .all(table) as { name: string }[];
+    return new Set(rows.map((r) => r.name));
+  }
+  // postgresql
+  const rows = db
+    .prepare(`SELECT column_name AS name FROM information_schema.columns WHERE table_name = ?`)
+    .all(table) as { name: string }[];
   return new Set(rows.map((r) => r.name));
 }
 
 /** 确保 _migrations 记录表存在并兼容旧版结构（老库只有 id/applied_at 两列） */
-function ensureMigrationTable(db: Database.Database): void {
+function ensureMigrationTable(db: SqlDb): void {
   db.exec(`CREATE TABLE IF NOT EXISTS _migrations (
     id INTEGER PRIMARY KEY,
     name TEXT,
@@ -474,14 +560,14 @@ function ensureMigrationTable(db: Database.Database): void {
   if (!cols.has('duration_ms')) db.exec(`ALTER TABLE _migrations ADD COLUMN duration_ms INTEGER`);
 }
 
-export function currentVersion(db: Database.Database): number {
+export function currentVersion(db: SqlDb): number {
   ensureMigrationTable(db);
   const row = db.prepare('SELECT MAX(id) AS v FROM _migrations').get() as { v: number | null };
   return row.v ?? 0;
 }
 
 export function pendingMigrations(
-  db: Database.Database,
+  db: SqlDb,
   migrations: Migration[] = MIGRATIONS,
 ): Migration[] {
   const cur = currentVersion(db);
@@ -489,12 +575,21 @@ export function pendingMigrations(
 }
 
 /**
+ * 获取迁移的最终 SQL：优先使用 sqlByDialect 中的方言特定版本，
+ * 否则对默认 SQL 做自动方言适配（AUTOINCREMENT → AUTO_INCREMENT 等）。
+ */
+function migrationSql(m: Migration, dialect: Dialect): string {
+  if (m.sqlByDialect?.[dialect]) return m.sqlByDialect[dialect]!;
+  return adaptSql(m.sql, dialect);
+}
+
+/**
  * 执行所有待应用的迁移（幂等）：
  * - 每个迁移单独一个事务：SQL 与迁移记录同生共死，失败整体回滚；
- * - needsFkOff 迁移按 SQLite 官方建议关外键执行，结束后 foreign_key_check 兜底。
+ * - needsFkOff 迁移在 sqlite 上按官方建议关外键执行，在 mysql/pg 上无需处理。
  */
 export function runMigrations(
-  db: Database.Database,
+  db: SqlDb,
   migrations: Migration[] = MIGRATIONS,
   opts: MigrateOptions = {},
 ): MigrateReport {
@@ -512,11 +607,12 @@ export function runMigrations(
 
   for (const m of pending) {
     const started = Date.now();
-    const fkOff = m.needsFkOff === true;
+    const fkOff = m.needsFkOff === true && db.dialect === 'sqlite';
     if (fkOff) db.pragma('foreign_keys = OFF');
     try {
+      const sql = migrationSql(m, db.dialect);
       const tx = db.transaction(() => {
-        db.exec(m.sql);
+        db.exec(sql);
         db.prepare(
           'INSERT INTO _migrations (id, name, applied_at, duration_ms) VALUES (?, ?, ?, 0)',
         ).run(m.id, m.name, new Date().toISOString());

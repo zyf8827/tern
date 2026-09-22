@@ -10,7 +10,7 @@ Tern（北极燕鸥）是一个面向 Coding Agent 与开发者的分布式 E2E 
 | --------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | **P1. 代码库即用例库**            | 杜绝私有格式锁定     | 用例就是 Git 仓库中带 `@tern` frontmatter 的普通 `*.spec.ts` 文件；平台只负责扫描、打包与索引。                                |
 | **P2. Web 管理端只读**            | 用例版本归属代码库   | Web 控制台不提供用例新建/在线编辑入口；所有用例生命周期均通过 Git 提交（由工程师或 Coding Agent 完成）。                       |
-| **P3. 极简运维与自包含**          | 零外部重量级中间件   | Server 仅需一个 Node.js 进程 + SQLite 数据库 + 本地/卷存储；Worker 仅需 Node.js 与 Playwright 浏览器，无 Redis/RabbitMQ 依赖。 |
+| **P3. 极简运维与自包含**          | 零外部重量级中间件   | Server 仅需一个 Node.js 进程 + 默认 SQLite（可选 MySQL/PostgreSQL） + 本地/卷存储；Worker 仅需 Node.js 与 Playwright 浏览器，无 Redis/RabbitMQ 依赖。 |
 | **P4. Agent 优先（Agent-First）** | 为机器友好而设计     | 所有平台能力均 100% 对齐提供 MCP 工具、CLI 命令与 REST API；输出结构化、错误签名自归因；配备官方 Agent Skill。                 |
 | **P5. Worker 被动自治**           | 易穿透防火墙与容器化 | Worker 主动出站向 Server 建立 WebSocket 注册与通信，不监听外部入站端口；支持网络中断本地续跑、断线重连与故障恢复。             |
 
@@ -31,7 +31,7 @@ flowchart TD
         WSGateway["WebSocket 通信网关"]
         SyncEngine["用例同步与打包器 (Case Syncer)"]
         Scheduler["运行调度器 (Run Scheduler)"]
-        DB[(SQLite 数据库)]
+        DB[(默认 SQLite（可选 MySQL/PostgreSQL）)]
         ArtifactStore["产物与日志存储 (Local Disk / S3)"]
     end
 

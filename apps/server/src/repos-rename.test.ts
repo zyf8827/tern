@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import Database from 'better-sqlite3';
+import { createSqlDb, type SqlDb } from './sql-db.js';
 import { MIGRATIONS, runMigrations } from './migrations.js';
 import { patchProject, updateProjectRepoInner } from './repos.js';
 import type { Runtime } from './runtime.js';
@@ -40,7 +40,7 @@ test('项目改名：非法名/重名拒绝；改名+重新同步切换 caseId �
   );
   writeFileSync(path.join(repoDir, 'cases', 'smoke', 'a.spec.ts'), CASE_SRC);
 
-  const db = new Database(path.join(base, 'platform.db'));
+  const db = createSqlDb({ dialect: 'sqlite', sqlitePath: path.join(base, 'platform.db') });
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
   runMigrations(db, MIGRATIONS);

@@ -145,3 +145,16 @@ docker run -d --name tern-worker \
 - `WORKER_TOKEN` 泄漏等于允许任意机器接入执行任务，生产环境请使用强随机值；
 - 平台定位为内网工具，请勿将 Server 直接暴露公网；如需最小防护可设置 `API_TOKEN` 环境变量（写操作要求 Bearer 认证）；
 - Worker 会执行用例库中的代码，请仅部署在可信环境（必要时叠加容器隔离策略）。
+
+## 8. 数据库后端
+
+Tern 默认使用内置 SQLite（文件保存在挂载的数据卷 `$HOST_DATA_DIR/platform.db` 中）。如需接入外置 MySQL 或 PostgreSQL 数据库，可通过配置环境变量实现（`docker-compose.yml` 中的 default compose 配置保持以 SQLite 为主，若使用 MySQL/PG 请外置部署并配置到 `server` 环境变量）。
+
+- **DB_DIALECT**：数据库方言，可选值为 `sqlite`（默认）、`mysql`、`postgresql`。
+- **DB_PATH**：当使用 `sqlite` 时，指定 `.db` 文件路径，默认指向数据目录下的 `platform.db`。
+- **DATABASE_URL**：MySQL 或 PostgreSQL 的完整连接字符串。
+- 也可以通过离散的 **DB_HOST**、**DB_PORT**、**DB_USER**、**DB_PASSWORD**、**DB_NAME** 进行配置。
+
+> **注意**：
+> - 数据库相关的环境变量仅供 Server 端使用（包括 `migrate-cli` 进行迁移时也共用此套配置）；Worker 端无数据库直连，无需配置这些参数。
+> - **测试覆盖度提示**：Tern 的单元测试目前主要覆盖 SQLite 分支。对于 MySQL/PG，底层使用 Worker 异步桥接来保证多环境一致，但强烈建议在生产应用前，自行连接真实的外置数据库实例进行预演测试。

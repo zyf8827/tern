@@ -43,9 +43,10 @@ function recordSyncRun(
   },
   startedAt: string,
 ): number {
-  const info = rt.db
-    .prepare('INSERT INTO sync_runs (project_id, started_at) VALUES (?, ?)')
-    .run(project.id, startedAt);
+  const id = rt.db.insertReturningId(
+    'INSERT INTO sync_runs (project_id, started_at) VALUES (?, ?)',
+    project.id, startedAt
+  );
   rt.db
     .prepare(
       'UPDATE sync_runs SET finished_at=?, added=?, updated=?, removed=?, invalid=?, git_commit=?, error=? WHERE id=?',
@@ -58,9 +59,9 @@ function recordSyncRun(
       r.invalid,
       r.commit,
       r.error,
-      Number(info.lastInsertRowid),
+      id,
     );
-  return Number(info.lastInsertRowid);
+  return id;
 }
 
 /**
@@ -266,7 +267,7 @@ export async function syncProjectCases(
 
       if (!prep.issues.length) {
         db.prepare('DELETE FROM case_tags WHERE case_id = ?').run(caseId);
-        const insTag = db.prepare('INSERT OR IGNORE INTO case_tags (case_id, tag) VALUES (?, ?)');
+        const insTag = db.prepare(`${db.insertOrIgnore('case_tags', ['case_id', 'tag'])} VALUES (?, ?)`);
         for (const t of new Set([...(fmMeta?.tags ?? []), ...defaultTags])) insTag.run(caseId, t);
       }
     }

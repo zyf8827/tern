@@ -1,5 +1,5 @@
 import type { Config } from './config.js';
-import type { Database } from 'better-sqlite3';
+import type { SqlDb } from './sql-db.js';
 import type { EventBus } from './events.js';
 import type { Logger } from 'pino';
 import type { WebSocket } from 'ws';
@@ -58,7 +58,7 @@ export interface LiveRun {
 
 export interface Runtime {
   cfg: Config;
-  db: Database;
+  db: SqlDb;
   events: EventBus;
   log: Logger;
   workers: Map<string, WorkerConn>;
@@ -1480,14 +1480,11 @@ export function createRun(rt: Runtime, payload: CreateRunPayload, createdBy: str
   // 多环境上下文：先落 run_envs 行，条目按 (case × context) 落位
   let ctxRowIds: (number | null)[] = [];
   if (resolvedContexts) {
-    const insCtx = db.prepare(
-      'INSERT INTO run_envs (batch_id, env_name, params, params_secret, device_proxy, position) VALUES (?, ?, ?, ?, ?, ?)',
-    );
     ctxRowIds = resolvedContexts.map((c, i) =>
-      Number(
-        insCtx.run(id, c.envName, JSON.stringify(c.params), c.paramsSecretEnc, c.deviceProxy, i)
-          .lastInsertRowid,
-      ),
+      db.insertReturningId(
+        'INSERT INTO run_envs (batch_id, env_name, params, params_secret, device_proxy, position) VALUES (?, ?, ?, ?, ?, ?)',
+        id, c.envName, JSON.stringify(c.params), c.paramsSecretEnc, c.deviceProxy, i
+      )
     );
   }
 

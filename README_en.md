@@ -37,6 +37,10 @@ In real-world engineering, the primary barrier in E2E testing is the heavy cost 
 - **Device Simulation & Reverse Proxy**: Supports simulated microphone audio streaming (PCM WAV) with a built-in `127.0.0.1` reverse proxy to overcome Chromium's `getUserMedia` secure context constraints on HTTP hosts.
 - **Schedules & Webhooks**: Built-in 5-field Cron scheduler for automated regression, supporting generic HTTP Webhooks and DingTalk bots.
 
+## Database
+Defaults to SQLite (zero-config, `data/platform.db`).
+For MySQL or PostgreSQL, configure via environment variables `DB_DIALECT` and `DATABASE_URL` (or discrete `DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASSWORD`/`DB_NAME`). See [Deployment](docs/deploy.md) for details.
+
 ---
 
 ## Quick Start

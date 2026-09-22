@@ -37,6 +37,10 @@ Tern 是一个轻量级、分布式的 E2E 测试平台，专为配合 Coding Ag
 - **设备模拟与反向代理**：支持虚拟麦克风推流（PCM WAV），内置本机 `127.0.0.1` 反向代理，自动解决 HTTP 域名下 Chromium 限制 `getUserMedia` 权限的问题。
 - **定时与通知**：支持 Cron 定时调度触发回归，支持通用 Webhook 与钉钉机器人发送运行结果通知。
 
+## 数据库 (Database)
+默认使用 SQLite (零配置, `data/platform.db`)。
+如需使用 MySQL 或 PostgreSQL，可通过配置环境变量 `DB_DIALECT` 和 `DATABASE_URL`（或离散的 `DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASSWORD`/`DB_NAME`）实现。详见 [部署文档](docs/deploy.md)。
+
 ---
 
 ## 快速开始

@@ -4,6 +4,12 @@
 
 ---
 
+## [Unreleased]
+
+### 新特性 (Features)
+- **数据库后端**: 增加多方言数据库支持 (Multi-dialect DB Support)，平台底层从仅支持 SQLite 升级为原生支持 MySQL 和 PostgreSQL（通过 `DB_DIALECT` / `DATABASE_URL` 环境变量配置）。
+
+
 ## [0.3.0] - 2026-09-22
 
 ### 重大变更与开源就绪改造 (Open Source Readiness)

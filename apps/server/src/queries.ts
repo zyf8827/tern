@@ -298,7 +298,7 @@ export function getCaseWithProject(rt: Runtime, id: string): Row | undefined {
   const row = rt.db
     .prepare(
       `SELECT c.*, p.name AS project_name,
-        (SELECT json_group_array(tag) FROM case_tags WHERE case_id = c.id) AS tags_json
+        (SELECT ${rt.db.jsonArrayAgg('tag')} FROM case_tags WHERE case_id = c.id) AS tags_json
        FROM cases c JOIN projects p ON p.id = c.project_id WHERE c.id = ?`,
     )
     .get(id) as Row | undefined;

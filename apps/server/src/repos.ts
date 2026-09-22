@@ -237,28 +237,12 @@ export async function addGitProject(
       const headBranch =
         payload.branch ??
         (await git(finalDir, ['rev-parse', '--abbrev-ref', 'HEAD'], resolved).catch(() => ''));
-      const info = rt.db
-        .prepare(
-          `INSERT INTO projects (name, description, created_at, source, git_url, branch, enabled, pull_interval_sec, dir_name, cases_dir, auth, default_tags, cred_type, cred_user, cred_secret, updated_at)
+      const id = rt.db.insertReturningId(
+        `INSERT INTO projects (name, description, created_at, source, git_url, branch, enabled, pull_interval_sec, dir_name, cases_dir, auth, default_tags, cred_type, cred_user, cred_secret, updated_at)
            VALUES (?, ?, ?, 'git', ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        )
-        .run(
-          finalName,
-          meta.description,
-          nowISO(),
-          resolved.gitUrl,
-          headBranch || null,
-          payload.pullIntervalSec ?? rt.cfg.pullIntervalSec,
-          finalName,
-          meta.casesDir,
-          JSON.stringify(meta.auth),
-          JSON.stringify(meta.defaultTags),
-          resolved.type,
-          resolved.username,
-          resolved.secret,
-          nowISO(),
-        );
-      const row = getProject(rt, Number(info.lastInsertRowid));
+        finalName, meta.description, nowISO(), resolved.gitUrl, headBranch || null, payload.pullIntervalSec ?? rt.cfg.pullIntervalSec, finalName, meta.casesDir, JSON.stringify(meta.auth), JSON.stringify(meta.defaultTags), resolved.type, resolved.username, resolved.secret, nowISO()
+      );
+      const row = getProject(rt, id);
       const sync = await syncProjectCases(rt, row);
       // 同步会写 last_commit/last_synced_at，重新取最新行返回
       const fresh = getProject(rt, row.id);
@@ -394,26 +378,16 @@ export async function discoverLocalProjectsInner(
         rt.log.warn({ name: meta.name }, 'meta.name 不符合 kebab-case，跳过注册');
         continue;
       }
-      const ins = rt.db
-        .prepare(
-          `INSERT INTO projects (name, description, created_at, source, enabled, pull_interval_sec, dir_name, cases_dir, auth, default_tags, updated_at)
+      const id = rt.db.insertReturningId(
+        `INSERT INTO projects (name, description, created_at, source, enabled, pull_interval_sec, dir_name, cases_dir, auth, default_tags, updated_at)
            VALUES (?, ?, ?, 'local', 1, 0, ?, ?, ?, ?, ?)`,
-        )
-        .run(
-          meta.name,
-          meta.description,
-          nowISO(),
-          entry,
-          meta.casesDir,
-          JSON.stringify(meta.auth),
-          JSON.stringify(meta.defaultTags),
-          nowISO(),
-        );
+        meta.name, meta.description, nowISO(), entry, meta.casesDir, JSON.stringify(meta.auth), JSON.stringify(meta.defaultTags), nowISO()
+      );
       added.push(meta.name);
       rt.events.emit(
         'projects',
         'project.updated',
-        projectInfo(rt, getProject(rt, Number(ins.lastInsertRowid))),
+        projectInfo(rt, getProject(rt, id)),
       );
     }
     return { added, refreshed };

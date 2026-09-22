@@ -3,17 +3,17 @@ import assert from 'node:assert/strict';
 import { rmSync, mkdirSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import Database from 'better-sqlite3';
+import { createSqlDb, type SqlDb } from './sql-db.js';
 import { MIGRATIONS, runMigrations, currentVersion, pendingMigrations } from './migrations.js';
 
-function tmpDb(name: string): { dir: string; db: Database.Database } {
+function tmpDb(name: string): { dir: string; db: SqlDb } {
   const dir = path.join(
     os.tmpdir(),
     `tern-migrate-${name}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
   );
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
-  const db = new Database(path.join(dir, 'platform.db'));
+  const db = createSqlDb({ dialect: 'sqlite', sqlitePath: path.join(dir, 'platform.db') });
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
   return { dir, db };

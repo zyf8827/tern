@@ -32,6 +32,9 @@ services:
       PULL_INTERVAL_SEC: ${PULL_INTERVAL_SEC:-300}
       # 对外可达地址：钉钉通知等消息里的「查看详情」链接用它拼（init-compose 自动探测宿主 IP 生成）
       PUBLIC_URL: ${PUBLIC_URL:-}
+      # 数据库配置（默认内嵌 SQLite；可选外置 MySQL / PostgreSQL）
+      # DB_DIALECT: ${DB_DIALECT:-sqlite}
+      # DATABASE_URL: ${DATABASE_URL:-}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       # 最小 API 防护：设置后所有写操作要求 Bearer 认证（init-compose 可选开启，取消下行注释生效）
       # API_TOKEN: ${API_TOKEN:-}

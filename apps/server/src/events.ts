@@ -1,4 +1,4 @@
-import type { Database } from 'better-sqlite3';
+import type { SqlDb } from './sql-db.js';
 
 export type EventBusListener = (env: {
   topic: string;
@@ -27,7 +27,7 @@ const PERSIST_TYPES = new Set([
 export class EventBus {
   private listeners = new Set<EventBusListener>();
 
-  constructor(private db: Database) {}
+  constructor(private db: SqlDb) {}
 
   on(l: EventBusListener): () => void {
     this.listeners.add(l);
@@ -39,10 +39,9 @@ export class EventBus {
     const ts = new Date().toISOString();
     let id: number | undefined;
     if (persist && PERSIST_TYPES.has(type)) {
-      id = Number(
-        this.db
-          .prepare('INSERT INTO events (ts, topic, type, payload) VALUES (?, ?, ?, ?)')
-          .run(ts, topic, type, JSON.stringify(payload ?? {})).lastInsertRowid,
+      id = this.db.insertReturningId(
+        'INSERT INTO events (ts, topic, type, payload) VALUES (?, ?, ?, ?)',
+        ts, topic, type, JSON.stringify(payload ?? {})
       );
     }
     const env = { topic, event: { type, ts, payload }, id };

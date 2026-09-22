@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { rmSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import Database from 'better-sqlite3';
+import { createSqlDb, type SqlDb } from './sql-db.js';
 import { MIGRATIONS, runMigrations } from './migrations.js';
 import { encryptJson, getSecretKey, resetSecretKeyCache } from './crypto.js';
 import {
@@ -24,7 +24,7 @@ function tmpRt(): { rt: Runtime; dir: string; close: () => void } {
   );
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
-  const db = new Database(path.join(dir, 'platform.db'));
+  const db = createSqlDb({ dialect: 'sqlite', sqlitePath: path.join(dir, 'platform.db') });
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
   runMigrations(db, MIGRATIONS);

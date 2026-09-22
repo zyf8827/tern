@@ -296,7 +296,7 @@ export function registerApi(app: FastifyInstance, rt: Runtime): void {
     const rows = rt.db
       .prepare(
         `SELECT c.*, p.name AS project_name,
-          (SELECT json_group_array(tag) FROM case_tags ct WHERE ct.case_id = c.id) AS tags_json,
+          (SELECT ${rt.db.jsonArrayAgg('tag')} FROM case_tags ct WHERE ct.case_id = c.id) AS tags_json,
           (SELECT history FROM case_stats cs WHERE cs.case_id = c.id) AS stats_json
          FROM cases c JOIN projects p ON p.id = c.project_id
          ${whereSql} ORDER BY c.id LIMIT ${limit} OFFSET ${offset}`,
@@ -660,19 +660,10 @@ export function registerApi(app: FastifyInstance, rt: Runtime): void {
     let projectId: number | null = null;
     if (payload.project) projectId = resolveProject(rt, payload.project).id;
     const whType = payload.type ?? (payload.url.includes('dingtalk.com') ? 'dingtalk' : 'generic');
-    const r = rt.db
-      .prepare(
-        `INSERT INTO webhooks (project_id, type, url, secret, notify_on, enabled, created_at) VALUES (?, ?, ?, ?, ?, 1, ?)`,
-      )
-      .run(
-        projectId,
-        whType,
-        payload.url,
-        payload.secret ?? '',
-        payload.notifyOn ?? 'failure',
-        new Date().toISOString(),
-      );
-    const id = Number(r.lastInsertRowid);
+    const id = rt.db.insertReturningId(
+      `INSERT INTO webhooks (project_id, type, url, secret, notify_on, enabled, created_at) VALUES (?, ?, ?, ?, ?, 1, ?)`,
+      projectId, whType, payload.url, payload.secret ?? '', payload.notifyOn ?? 'failure', new Date().toISOString()
+    );
     return { webhook: webhookPublic(rt, id) };
   });
 
