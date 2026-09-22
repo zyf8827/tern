@@ -21,3 +21,5 @@ apps/server/public/
 
 # 用例项目仓库（git clone / 本地放置，由 server 管理）
 repos/
+
+.publish/
