@@ -1,4 +1,4 @@
-# Tern MCP Server 接入与发布指南
+# Tern MCP Server 接入指南
 
 Tern Model Context Protocol (MCP) Server 为 Coding Agent（如 Claude Code, Cursor, Windsurf, Zed, Antigravity 等）提供对 Tern E2E 测试平台的标准 stdio 接入能力。Agent 可直接调用 `tern_*` 工具查询项目、获取用例、同步用例、创建测试集、发起测试运行、分析失败并获取截图。
 
@@ -8,15 +8,17 @@ Tern Model Context Protocol (MCP) Server 为 Coding Agent（如 Claude Code, Cur
 
 ### 方式 A：通过 npm / npx 运行（推荐）
 
-当 `@zyf8827/tern-mcp` 发布到 npm 后，可直接通过 `npx` 运行：
+`@zyf8827/tern-mcp` 已正式发布至 npm（v0.3.0），可直接通过 `npx` 运行：
 
 ```bash
 npx -y @zyf8827/tern-mcp
 ```
 
+npm 页面：https://www.npmjs.com/package/@zyf8827/tern-mcp
+
 ### 方式 B：通过 GitHub Release 产物直接运行（零依赖单文件）
 
-从 [GitHub Releases](https://github.com/zyf8827/tern/releases) 下载 `tern-mcp.mjs`（Node.js ≥ 20 直接运行）：
+从 [GitHub Releases](https://github.com/zyf8827/tern/releases) 下载 `tern-mcp.mjs`（由 release-assets 工作流随版本构建，Node.js ≥ 20 直接运行）：
 
 ```bash
 node /path/to/tern-mcp.mjs
@@ -100,10 +102,10 @@ Tern MCP Server 通过环境变量连接 Tern Server：
 claude mcp add tern -- npx -y @zyf8827/tern-mcp
 ```
 
-或使用本地文件并指定环境变量：
+或指定环境变量：
 
 ```bash
-claude mcp add tern -e TERN_URL=http://127.0.0.1:7430 -- node /path/to/dist/tern-mcp.mjs
+claude mcp add tern -e TERN_URL=http://127.0.0.1:7430 -- npx -y @zyf8827/tern-mcp
 ```
 
 ### 3.3 Cursor
@@ -133,7 +135,7 @@ claude mcp add tern -e TERN_URL=http://127.0.0.1:7430 -- node /path/to/dist/tern
         }
       }
     }
-  ]
+  }
 }
 ```
 
@@ -141,16 +143,16 @@ claude mcp add tern -e TERN_URL=http://127.0.0.1:7430 -- node /path/to/dist/tern
 
 ## 4. MCP 工具列表
 
-Tern MCP Server 提供完整的 `tern_*` 工具集：
+Tern MCP Server 提供完整的 27 个 `tern_*` 工具：
 
 | 工具名称                   | 功能描述                                                       |
 | -------------------------- | -------------------------------------------------------------- |
 | `tern_list_projects`       | 列出平台接入的所有用例项目（ID、名称、Git 地址、状态）         |
-| `tern_get_project`         | 获取单个项目的详情、配置与最近一次同步报告                     |
 | `tern_add_project`         | 接入新用例项目（支持 HTTP 账号密码与 SSH 私钥认证）            |
-| `tern_sync_project`        | 强制同步项目用例仓库，返回 lint 校验、编译与资产索引报告       |
+| `tern_sync_project`        | 强制更新项目用例仓库，返回 lint 校验、编译与资产索引报告       |
 | `tern_list_cases`          | 多维查询用例（支持 project/tags/version/module/q 等条件）      |
 | `tern_get_case`            | 查询单条用例元数据（frontmatter、设备配置）与 TypeScript 源码  |
+| `tern_list_environments`   | 列出项目已配置的环境列表与变量完备度                           |
 | `tern_list_suites`         | 列出项目测试集、健康度与用例命中数（发起运行前主入口）         |
 | `tern_get_suite`           | 查询测试集选择器定义与环境/账号绑定                            |
 | `tern_create_suite`        | 创建测试集（声明式选择器 + env/account 绑定）                  |
@@ -158,44 +160,29 @@ Tern MCP Server 提供完整的 `tern_*` 工具集：
 | `tern_delete_suite`        | 删除测试集                                                     |
 | `tern_preview_run`         | 运行前 dry-run 预览（按环境分组、去重明细）                    |
 | `tern_run_cases`           | 发起测试运行（支持多测试集多环境并跑、多维筛选，默认等待完成） |
+| `tern_list_runs`           | 查询历史测试运行列表（支持分页与状态筛选）                     |
 | `tern_get_run`             | 获取测试运行详情、用例汇总与通过率统计                         |
 | `tern_wait_run`            | 轮询等待测试运行结束并返回结果                                 |
-| `tern_cancel_run`          | 取消正在执行的测试运行                                         |
-| `tern_delete_run`          | 删除测试运行记录                                               |
 | `tern_retry_failed`        | 原位重跑上一次运行中失败的用例集                               |
+| `tern_rerun`               | 全量重跑上一次运行的所有用例                                   |
+| `tern_cancel_run`          | 取消正在执行的测试运行                                         |
+| `tern_delete_run`          | 删除测试运行记录及关联产物                                     |
 | `tern_get_execution`       | 获取单条用例执行明细、控制台日志、步骤时间线                   |
-| `tern_get_screenshot`      | 下载失败用例的首张截图（base64 image 协议直传）                |
+| `tern_get_screenshot`      | 获取失败用例的首张截图（base64 image 协议直传）                |
 | `tern_get_failure_summary` | 按错误特征签名聚合批量失败，附带首组截图与复发历史             |
 | `tern_set_case_quarantine` | 手动隔离 / 解除隔离不稳定用例（Flaky 治理）                    |
 | `tern_list_workers`        | 查询所有 Worker 实例状态、版本与并发槽利用率                   |
+| `tern_resync_cases`        | 触发项目本地用例重新扫描与索引                                 |
 | `tern_list_schedules`      | 查询定时回归调度任务状态与下次触发时间                         |
 
 ---
 
-## 5. MCP Registry 上架指引
+## 5. MCP Registry 上架信息
 
-Tern MCP Server 的官方 Registry 注册材料已就绪：
+Tern MCP Server 已正式上架至官方 [MCP Registry](https://registry.modelcontextprotocol.io/)：
 
-- 注册文件：`server.json`（已通过 `mcp-publisher validate server.json` 官方校验）
-- Server 唯一标识：`io.github.zyf8827/tern`
-- Schema：`https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json`
-
-### 发布步骤（需项目所有者授权）
-
-由于发布到官方 Registry 需要所有者 GitHub 账号认证，请按以下步骤操作：
-
-```bash
-# 1. 确保已安装 mcp-publisher（官方 Go 工具）
-mcp-publisher --help
-
-# 2. 登录 GitHub 账号（进行交互式 OAuth 授权）
-mcp-publisher login github
-
-# 3. 校验 server.json 结构
-mcp-publisher validate server.json
-
-# 4. 发布到官方 MCP Registry
-mcp-publisher publish server.json
-```
-
-发布成功后，全球 Agent 可直接通过 `io.github.zyf8827/tern` 标识发现并安装 Tern MCP 服务。
+- **唯一标识**：`io.github.zyf8827/tern`
+- **状态**：Active（已收录并可直接索引）
+- **对应 npm 包**：`@zyf8827/tern-mcp` (v0.3.0)
+- **规范描述文件**：仓库根目录 `server.json`（基于 MCP Server Registry Schema）
+- **客户端接入**：支持 MCP Registry 协议的客户端可直接通过 `io.github.zyf8827/tern` 标识发现并接入。

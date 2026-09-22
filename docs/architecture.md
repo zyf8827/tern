@@ -1,6 +1,6 @@
 # Tern 架构设计与系统原理
 
-Tern（北极燕鸥）是一套**专为 Coding Agent 与现代工程团队打造的分布式 E2E 测试平台**。用例采用原生 Playwright Test 编写并保存在 Git 仓库中；平台负责用例同步索引、分布式调度执行、实时屏幕透传、失败归因分析与 MCP/API 接口暴露。
+Tern（北极燕鸥）是一个面向 Coding Agent 与开发者的分布式 E2E 测试平台。用例采用原生 Playwright Test 编写并保存在 Git 仓库中；平台负责用例同步索引、分布式调度执行、实时屏幕透传、失败归因分析与 MCP/API 接口暴露。
 
 ---
 
@@ -79,7 +79,7 @@ flowchart TD
    - **设备反向代理**：针对需要麦克风、摄像头等媒体权限的用例，自动在本机 `127.0.0.1` 建立代理，规避 Chromium 安全源限制。
 3. **管理与交互端**：
    - **Web 控制台 (`apps/web`)**：基于 React 18 + Tailwind CSS 打造的实时控制台，提供运行看板、录屏回放、健康度分析与测试集配置。
-   - **MCP Server (`apps/mcp`)**：基于 Model Context Protocol 标准封装的 stdio 服务，暴露 24 个精细化测试管理工具。
+   - **MCP Server (`apps/mcp`)**：基于 Model Context Protocol 标准封装的 stdio 服务，暴露 27 个测试管理工具。
    - **CLI 命令行 (`packages/cli`)**：面向终端与 CI/CD 流程的轻量控制工具。
 
 ---
@@ -174,5 +174,5 @@ Tern 引入**测试集（Test Suite）**将「选哪些用例」与「在什么�
 ## 6. 产物与观测性
 
 - **自动留痕**：用例失败时，Worker 自动落盘控制台日志（Console）、网络请求、首张失败截图（Base64 image 直传 MCP/Web）与 Playwright Trace。
-- **错误签名聚类**：平台内置聚类算法，将大批量执行失败按错误堆栈与特征签名自动分组归因，极大地降低维护排查耗时。
+- **错误签名聚类**：平台内置聚类算法，将大批量执行失败按错误堆栈与特征签名自动分组归因，便于快速排查定位。
 - **通用通知扩展**：内置 Generic HTTP Webhook 机制与 HMAC-SHA256 签名，支持钉钉等第三方系统通知扩展。

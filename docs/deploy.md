@@ -25,13 +25,13 @@ bash scripts/init-compose.sh --yes    # 或非交互全默认（CI/脚本可用�
 
 ## 2. 构建镜像
 
-所有镜像内安装（apt / npm / playwright 浏览器下载）**默认走中国源**，可通过 build-arg 或 `.env` 覆盖：
+所有镜像构建默认使用官方上游源（Debian、npm）。在中国大陆网络环境下构建，可通过 build-arg 或 `.env` 启用国内镜像加速：
 
-| 变量                       | 默认（中国源）                                                | 说明                                                       |
-| -------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- |
-| `APT_MIRROR`               | `mirrors.aliyun.com`                                          | 亦可 `mirrors.tuna.tsinghua.edu.cn`、`mirrors.ustc.edu.cn` |
-| `NPM_REGISTRY`             | `https://registry.npmmirror.com`                              | npm registry                                               |
-| `PLAYWRIGHT_DOWNLOAD_HOST` | `https://npmmirror.com/mirrors/playwright`（worker 内置 ENV） | 浏览器二进制下载                                           |
+| 变量                       | 可选国内源示例                                            | 说明                                              |
+| -------------------------- | --------------------------------------------------------- | ------------------------------------------------- |
+| `APT_MIRROR`               | `mirrors.aliyun.com`（或 `mirrors.tuna.tsinghua.edu.cn`） | apt 镜像源（默认官方源）                          |
+| `NPM_REGISTRY`             | `https://registry.npmmirror.com`                          | npm registry（默认 `https://registry.npmjs.org`） |
+| `PLAYWRIGHT_DOWNLOAD_HOST` | `https://npmmirror.com/mirrors/playwright`                | 浏览器二进制下载（默认官方源）                    |
 
 ```bash
 bash scripts/docker-build.sh  # 构建两个镜像（自动校验 playwright 版本一致性）
@@ -117,7 +117,7 @@ docker compose logs -f worker
 docker compose up -d --force-recreate
 
 # 升级平台：改代码后重新构建并滚动替换
-# SQLite schema 会在 server 启动时自动迁移（见 docs/tech-design.md §5.4），无需人工操作；
+# SQLite schema 会在 server 启动时自动迁移，无需人工操作；
 # 升级前可先检查: docker compose run --rm --no-deps server node dist/migrate-cli.js status
 bash scripts/docker-build.sh && docker compose up -d --build
 ```

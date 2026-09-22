@@ -91,4 +91,4 @@ skills/tern-project/
 - **创建测试集**：
   > "在平台创建一个名为 regression-staging 的测试集，绑定 staging 环境，包含所有 regression 标签用例。"
 
-Agent 将自动依据 `SKILL.md` 规范与 `tern_*` MCP 工具链闭环执行！
+Agent 将依据 `SKILL.md` 规范与 `tern_*` MCP 工具链进行自动化操作。

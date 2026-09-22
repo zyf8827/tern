@@ -126,7 +126,7 @@ test('用例名', async ({ page }) => {
 
 ## 执行与结果
 
-- **MCP**（推荐）：tools 以 `tern_` 前缀命名（含 `tern_add_project` / `tern_sync_project` 项目管理、`tern_list_environments` 环境、`tern_list_suites` / `tern_create_suite` 测试集、`tern_get_failure_summary` 失败分组、`tern_preview_run` 运行前 dry-run 预览），`tern_run_cases` 的 `wait=true`（默认）阻塞到测试运行结束并返回逐用例结果；一次运行只归属一个 project，可多 version/tag/suite（多集各带环境按「用例×环境」去重），`workerId` 缺省则全部空闲 worker 并行；`tern_get_screenshot` 直接返回失败截图；`tern_delete_run` 删除运行及产物；`tern_set_case_quarantine` 手动隔离 flaky 用例。
+- **MCP**（推荐）：Tern MCP Server 已正式发布至 npm（`@zyf8827/tern-mcp`，通过 `npx -y @zyf8827/tern-mcp` 运行）并在官方 MCP Registry 上架（`io.github.zyf8827/tern`，active）。官方 Agent Skill 可通过 `npx skills add https://github.com/zyf8827/tern.git --skill tern-project` 安装。tools 以 `tern_` 前缀命名（含 `tern_add_project` / `tern_sync_project` 项目管理、`tern_list_environments` 环境、`tern_list_suites` / `tern_create_suite` 测试集、`tern_get_failure_summary` 失败分组、`tern_preview_run` 运行前 dry-run 预览），`tern_run_cases` 的 `wait=true`（默认）阻塞到测试运行结束并返回逐用例结果；一次运行只归属一个 project，可多 version/tag/suite（多集各带环境按「用例×环境」去重），`workerId` 缺省则全部空闲 worker 并行；`tern_get_screenshot` 直接返回失败截图；`tern_delete_run` 删除运行及产物；`tern_set_case_quarantine` 手动隔离 flaky 用例。
 - **CLI**：`node packages/cli/dist/index.js <cmd>`（或全局 link 后 `tern`）。`projects add/sync/remove/rename`、`run --project p --env <name> --suite <名>（可多个） --worker <id|名> --wait --json`（退出码 = 失败用例数）、`cases list --version v2 --module login`、`runs list/delete --suite <名>`、`suites <project> list/show/create/update/rm/preview`、`env list/create/set/rm`、`schedules create/pause/resume/rm`、`cases quarantine/unquarantine`。
   - **项目改名**：`tern projects rename <id|name> <newName>`（或 `PATCH /api/v1/projects/:id {name}`）——项目名是 caseId 第一段，改名后平台**自动重新同步**：用例以新前缀（`新项目名/…`）重新入索引，旧 caseId 软删除成为历史；环境/测试集/定时/webhook 等按项目 id 关联的数据不受影响。git 项目的注册名与仓库 `tern.yaml` 的 `name` 不一致时**以注册名为准**（sync 只告警）——两边对齐的方式：先改仓库 `tern.yaml`，再 rename 注册名。
 - **Web**：`http://<server>:7430`（本地实例默认：<http://127.0.0.1:7430/>）—— 项目管理（添加 git 仓库 + HTTP 账号密码 / SSH 私钥、手动更新、**环境与通用 Webhook 通知配置**、**测试集**管理与命中预览）、用例库分页筛选（flaky 率/隔离）、测试运行实时进度 + 执行中只读实时画面（多环境运行条目带 env 徽标）、失败截图/**失败分组**/trace 在线查看、定时任务页（可引用测试集）、Workers 状态。用例代码仍然只读（在用例仓库里改）。
@@ -145,7 +145,7 @@ pnpm monorepo（`apps/*` + `packages/*`；Node ≥ 20，pnpm@10；ESM + NodeNext
 | `apps/server`           | `@tern/server`       | Fastify + better-sqlite3，端口 7430：项目管理、调度、WS 推送、托管 Web 构建产物；单测在此 |
 | `apps/worker`           | `@tern/worker`       | 被动执行节点（只出站连接），跑 Playwright                                                 |
 | `apps/web`              | `@tern/web`          | React + Vite + Tailwind 管理端                                                            |
-| `apps/mcp`              | `@tern/mcp`          | MCP server（bin `tern-mcp`）                                                              |
+| `apps/mcp`              | `@zyf8827/tern-mcp`  | MCP server（bin `tern-mcp`）                                                              |
 
 依赖方向：`sdk` 是叶子，禁止反向 import 其他包；`server → case-bundler`、`worker → exec-kit`，`cli`/`mcp` 只依赖 `sdk`。单元测试是 `*.test.ts`，经编译后从 `dist/` 运行（`node --test .../dist/*.test.js`）——**跑 `test:unit` 前必须先 `pnpm build`**。
 
@@ -168,4 +168,4 @@ node scripts/demo-site.mjs     # 本地演示站点（带登录，供 tests/fixt
 
 首次运行需 `npx playwright install chromium`（worker 所在机器）。
 
-部署走 Docker（`docker-compose.yml`、`scripts/docker-build.sh` / `docker-smoke.sh`），见 `docs/deploy.md`；平台架构详见 `docs/tech-design.md`，登录配方设计见 `docs/auth-design.md`。
+部署走 Docker（`docker-compose.yml`、`scripts/docker-build.sh` / `docker-smoke.sh`），见 `docs/deploy.md`；平台架构详见 `docs/architecture.md`，登录配方设计见 `docs/auth-design.md`。
