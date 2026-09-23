@@ -1,6 +1,6 @@
 # Tern Agent Skill（tern-project）安装与使用指南
 
-`tern-project` 是专为 Coding Agent（如 Claude Code, Cursor, Windsurf, Antigravity 等）打造的领域特定 Skill，用于自动化管理与编写 Tern E2E 测试用例。
+`tern-project` 是专为 Coding Agent（如 Claude Code, Cursor, Windsurf 等）打造的领域特定 Skill，用于自动化管理与编写 Tern E2E 测试用例。
 
 它向 Agent 传授：
 
@@ -40,20 +40,8 @@ mkdir -p ~/.claude/skills/
 cp -r skills/tern-project ~/.claude/skills/
 ```
 
-#### 2. Antigravity CLI / Gemini Coding Agent
 
-- **用户全局级别**：
-  ```bash
-  mkdir -p ~/.gemini/antigravity-cli/skills/
-  cp -r skills/tern-project ~/.gemini/antigravity-cli/skills/
-  ```
-- **工作区项目级别**：
-  ```bash
-  mkdir -p .gemini/skills/
-  cp -r skills/tern-project .gemini/skills/
-  ```
-
-#### 3. Cursor / Windsurf / 其他 Agent
+#### 2. Cursor / Windsurf / 其他 Agent
 
 将 `skills/tern-project/SKILL.md` 及其 `references/` 目录内容软链接或复制到项目的规则/提示词目录下，或在 Agent 设置的 Custom Instructions / Rules 中引用。
 

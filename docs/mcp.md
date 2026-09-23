@@ -1,6 +1,6 @@
 # Tern MCP Server 接入指南
 
-Tern Model Context Protocol (MCP) Server 为 Coding Agent（如 Claude Code, Cursor, Windsurf, Zed, Antigravity 等）提供对 Tern E2E 测试平台的标准 stdio 接入能力。Agent 可直接调用 `tern_*` 工具查询项目、获取用例、同步用例、创建测试集、发起测试运行、分析失败并获取截图。
+Tern Model Context Protocol (MCP) Server 为 Coding Agent（如 Claude Code, Cursor, Windsurf, Zed 等）提供对 Tern E2E 测试平台的标准 stdio 接入能力。Agent 可直接调用 `tern_*` 工具查询项目、获取用例、同步用例、创建测试集、发起测试运行、分析失败并获取截图。
 
 ---
 

@@ -24,7 +24,7 @@
 
 ---
 
-Tern is a lightweight, distributed end-to-end testing platform designed to work alongside Coding Agents (such as Claude Code, Cursor, Windsurf, Antigravity) and developers.
+Tern is a lightweight, distributed end-to-end testing platform designed to work alongside Coding Agents (such as Claude Code, Cursor, Windsurf) and developers.
 
 In real-world engineering, the primary barrier in E2E testing is the heavy cost of writing and continuously maintaining test cases. Tern keeps test cases in independent Git repositories written with native Playwright. Developers define the project contract and environment configs, while Coding Agents author, sync, execute, troubleshoot using failure screenshots, and re-run tests via MCP or Skill integrations.
 

@@ -28,7 +28,7 @@ Tern（北极燕鸥）是一个面向 Coding Agent 与开发者的分布式 E2E 
 flowchart TD
     subgraph Clients["客户端与接入层"]
         WebUser["人类开发者 (Web 控制台)"]
-        CodingAgent["Coding Agent (Claude / Cursor / Antigravity)"]
+        CodingAgent["Coding Agent (Claude / Cursor / Windsurf)"]
         CLIUser["CI / CD 脚本 & Tern CLI"]
     end
 

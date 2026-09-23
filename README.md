@@ -24,7 +24,7 @@
 
 ---
 
-Tern 是一个轻量级、分布式的 E2E 测试平台，专为配合 Coding Agent（如 Claude Code、Cursor、Windsurf、Antigravity 等）与开发者协同工作设计。
+Tern 是一个轻量级、分布式的 E2E 测试平台，专为配合 Coding Agent（如 Claude Code、Cursor、Windsurf 等）与开发者协同工作设计。
 
 在实际项目中，端到端测试最大的痛点通常是用例编写与长期维护的高昂人力成本。Tern 将用例放在独立的 Git 仓库中，通过原生 Playwright 编写；开发者只需定义项目的配置与契约，Coding Agent 即可通过 MCP 或 Skill 进行用例编写、同步拉取、触发执行、回传失败截图定位排查与重跑。
 
