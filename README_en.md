@@ -32,7 +32,7 @@ In real-world engineering, the primary barrier in E2E testing is the heavy cost 
   <img src="docs/architecture.png" alt="Tern system architecture" width="900" />
 </p>
 
-Web / Coding Agent / CLI → Tern Server → outbound Worker pool: cases from Git, default SQLite with optional MySQL/PostgreSQL. See [docs/architecture.md](docs/architecture.md).
+*Lightweight, distributed E2E testing architecture for Coding Agents and developers. See [docs/architecture.md](docs/architecture.md).*
 
 ---
 

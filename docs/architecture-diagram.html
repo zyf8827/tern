@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tern Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1600px;
+    height: 1000px;
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+    background: radial-gradient(ellipse at 20% 0%, #0b1f3a 0%, #05080f 55%, #03050a 100%);
+    color: #e8eef7;
+    overflow: hidden;
+    position: relative;
+  }
+  body::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(56, 140, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56, 140, 255, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    pointer-events: none;
+  }
+  .frame {
+    position: relative;
+    padding: 48px 56px 40px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .brand img { height: 52px; width: auto; }
+  .title-block h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #f4f7fc;
+  }
+  .title-block p {
+    margin-top: 4px;
+    font-size: 14px;
+    color: #8ea0bc;
+    font-weight: 500;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(56, 140, 255, 0.12);
+    border: 1px solid rgba(96, 165, 255, 0.28);
+    color: #9ec5ff;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .badge .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #3b9eff;
+    box-shadow: 0 0 10px #3b9eff;
+  }
+
+  .layers {
+    flex: 1;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 22px;
+  }
+
+  .row {
+    display: grid;
+    gap: 18px;
+  }
+  .row.clients { grid-template-columns: 1fr 1fr 1fr; }
+  .row.core { grid-template-columns: 1.35fr 0.9fr; }
+  .row.bottom { grid-template-columns: 1.2fr 0.8fr 1fr; }
+
+  .panel {
+    position: relative;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(18, 32, 56, 0.92), rgba(10, 18, 34, 0.95));
+    border: 1px solid rgba(110, 168, 255, 0.22);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.02) inset,
+      0 18px 40px rgba(0, 0, 0, 0.35);
+    padding: 18px 18px 16px;
+    overflow: hidden;
+  }
+  .panel::before {
+    content: "";
+    position: absolute; left: 0; top: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #4aa3ff, #7ad0ff, transparent);
+    opacity: 0.85;
+  }
+  .panel.accent {
+    border-color: rgba(74, 163, 255, 0.45);
+    background: linear-gradient(165deg, rgba(22, 48, 88, 0.96), rgba(10, 20, 40, 0.98));
+  }
+  .panel-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .panel-label h2 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #7eb6ff;
+  }
+  .panel-label span {
+    font-size: 11px;
+    color: #6d7f9c;
+    font-weight: 500;
+  }
+
+  .cards {
+    display: grid;
+    gap: 12px;
+  }
+  .cards.three { grid-template-columns: repeat(3, 1fr); }
+  .cards.two { grid-template-columns: 1fr 1fr; }
+  .cards.stack { grid-template-columns: 1fr; }
+
+  .card {
+    border-radius: 12px;
+    padding: 14px 14px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(140, 180, 255, 0.14);
+    min-height: 78px;
+  }
+  .card.glow {
+    background: linear-gradient(160deg, rgba(45, 120, 220, 0.18), rgba(255,255,255,0.03));
+    border-color: rgba(90, 170, 255, 0.35);
+  }
+  .card h3 {
+    font-size: 15px;
+    font-weight: 650;
+    color: #f2f6fc;
+    margin-bottom: 4px;
+  }
+  .card p {
+    font-size: 12px;
+    line-height: 1.45;
+    color: #95a7c2;
+  }
+  .card .meta {
+    margin-top: 8px;
+    display: inline-flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    color: #b7d4ff;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(96, 165, 250, 0.25);
+  }
+
+  .server-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 12px;
+  }
+  .server-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .server-side {
+    display: grid;
+    gap: 10px;
+  }
+
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #6f89ad;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .flow .line {
+    height: 1px;
+    width: 48px;
+    background: linear-gradient(90deg, transparent, #4aa3ff, transparent);
+  }
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 4px;
+    color: #61728e;
+    font-size: 12px;
+  }
+  .footer strong { color: #9db4d4; font-weight: 600; }
+  .legend {
+    display: flex;
+    gap: 16px;
+  }
+  .legend item, .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .swatch {
+    width: 10px; height: 10px; border-radius: 3px;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="header">
+      <div class="brand">
+        <img src="logo-icon.png" alt="tern" style="height:56px;width:56px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(74,163,255,.35));" />
+        <div class="title-block">
+          <div style="font-size:15px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7eb6ff;margin-bottom:2px;">Tern</div>
+          <h1>System Architecture</h1>
+          <p>Distributed E2E testing for Coding Agents &amp; developers</p>
+        </div>
+      </div>
+      <div class="badge"><span class="dot"></span>pole to pole · end to end</div>
+    </div>
+
+    <div class="layers">
+      <!-- Clients -->
+      <div class="panel">
+        <div class="panel-label">
+          <h2>Clients &amp; Access</h2>
+          <span>Human · Agent · Automation</span>
+        </div>
+        <div class="cards three">
+          <div class="card glow">
+            <h3>Web Console</h3>
+            <p>Run dashboard, Trace Viewer, suites &amp; health insights</p>
+            <div class="meta"><span class="chip">HTTP</span><span class="chip">WebSocket</span></div>
+          </div>
+          <div class="card glow">
+            <h3>Coding Agent</h3>
+            <p>Author, sync, trigger, triage &amp; rerun via tools</p>
+            <div class="meta"><span class="chip">MCP</span><span class="chip">Skill</span></div>
+          </div>
+          <div class="card glow">
+            <h3>CLI / CI</h3>
+            <p>Scripts and pipelines for scheduled regression</p>
+            <div class="meta"><span class="chip">REST API</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow"><div class="line"></div>requests &amp; control plane<div class="line"></div></div>
+
+      <!-- Core -->
+      <div class="row core">
+        <div class="panel accent">
+          <div class="panel-label">
+            <h2>Tern Server</h2>
+            <span>:7430 · single Node process</span>
+          </div>
+          <div class="server-grid">
+            <div class="server-main">
+              <div class="card">
+                <h3>REST API</h3>
+                <p>Projects, cases, suites, runs, reports</p>
+              </div>
+              <div class="card">
+                <h3>WebSocket Gateway</h3>
+                <p>Heartbeats, dispatch, live logs &amp; CDP stream</p>
+              </div>
+              <div class="card">
+                <h3>Case Syncer</h3>
+                <p>Git pull, metadata index, self-contained bundles</p>
+              </div>
+              <div class="card">
+                <h3>Run Scheduler</h3>
+                <p>Suites × envs, dedupe, slot-aware scheduling</p>
+              </div>
+            </div>
+            <div class="server-side">
+              <div class="card glow">
+                <h3>Database</h3>
+                <p>Default SQLite · optional MySQL / PostgreSQL</p>
+                <div class="meta"><span class="chip">SQLite</span><span class="chip">MySQL</span><span class="chip">PostgreSQL</span></div>
+              </div>
+              <div class="card">
+                <h3>Artifacts</h3>
+                <p>Screenshots, traces, logs — local disk or S3</p>
+                <div class="meta"><span class="chip">Local</span><span class="chip">S3</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-label">
+            <h2>Case Source</h2>
+            <span>codebase as test suite</span>
+          </div>
+          <div class="cards stack">
+            <div class="card glow">
+              <h3>Git Case Repositories</h3>
+              <p>Native Playwright specs with <code style="color:#9ec5ff">@tern</code> metadata</p>
+              <div class="meta"><span class="chip">cases/**/*.spec.ts</span><span class="chip">tern.yaml</span></div>
+            </div>
+            <div class="card">
+              <h3>Auth Recipes</h3>
+              <p>Declarative login → storageState injection</p>
+              <div class="meta"><span class="chip">api</span><span class="chip">form</span><span class="chip">storage</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow"><div class="line"></div>outbound WebSocket · no inbound ports on workers<div class="line"></div></div>
+
+      <!-- Bottom -->
+      <div class="row bottom">
+        <div class="panel accent">
+          <div class="panel-label">
+            <h2>Worker Pool</h2>
+            <span>passive · firewalled · container-friendly</span>
+          </div>
+          <div class="cards two">
+            <div class="card glow">
+              <h3>Worker #1 … #N</h3>
+              <p>Outbound WS client, concurrent slots, Playwright runner</p>
+              <div class="meta"><span class="chip">Playwright</span><span class="chip">Slots</span></div>
+            </div>
+            <div class="card">
+              <h3>exec-kit</h3>
+              <p>Sandbox, auth inject, CDP capture, device proxy</p>
+              <div class="meta"><span class="chip">127.0.0.1 proxy</span><span class="chip">traces</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-label">
+            <h2>Observability</h2>
+            <span>agent-ready triage</span>
+          </div>
+          <div class="cards stack">
+            <div class="card">
+              <h3>Failure Context</h3>
+              <p>Screenshot · console · network · error signature</p>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-label">
+            <h2>Automation</h2>
+            <span>keep regressions flying</span>
+          </div>
+          <div class="cards stack">
+            <div class="card">
+              <h3>Cron &amp; Notify</h3>
+              <p>Schedules, webhooks, DingTalk bots</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>github.com/zyf8827/tern · <strong>Apache-2.0</strong></div>
+      <div class="legend">
+        <span><i class="swatch" style="background:#3b9eff"></i> control plane</span>
+        <span><i class="swatch" style="background:#7ad0ff"></i> data path</span>
+        <span><i class="swatch" style="background:#254a78"></i> execution edge</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

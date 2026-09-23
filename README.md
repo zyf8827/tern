@@ -32,7 +32,7 @@ Tern 是一个轻量级、分布式的 E2E 测试平台，专为配合 Coding Ag
   <img src="docs/architecture.png" alt="Tern system architecture" width="900" />
 </p>
 
-Web / Coding Agent / CLI → Tern Server → outbound Worker pool：测试用例直接来自 Git 仓库，平台默认使用 SQLite（可选 MySQL/PostgreSQL）。详见 [docs/architecture.md](docs/architecture.md)。
+*面向 Coding Agent 与开发者的轻量分布式 E2E 测试架构。详见 [docs/architecture.md](docs/architecture.md)。*
 
 ---
 
