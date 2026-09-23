@@ -5,6 +5,7 @@
   <p><i>pole to pole, end to end</i> —— 一年往返两极约 7 万公里，从一极到另一极。</p>
 
   <p>
+    <a href="https://zyf8827.github.io/tern-website/"><img src="https://img.shields.io/badge/website-zyf8827.github.io-blue" alt="Website" /></a>
     <a href="https://github.com/zyf8827/tern/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License" /></a>
     <a href="https://github.com/zyf8827/tern/actions/workflows/ci.yml"><img src="https://github.com/zyf8827/tern/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
     <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg" alt="Node Version" /></a>
@@ -15,6 +16,9 @@
 
   <p>
     <b>简体中文</b> | <a href="./README_en.md">English</a>
+  </p>
+  <p>
+    Website: <a href="https://zyf8827.github.io/tern-website/">https://zyf8827.github.io/tern-website/</a>
   </p>
 </div>
 

@@ -5,6 +5,7 @@
   <p><i>pole to pole, end to end</i> —— Arctic terns fly ~70,000 km between poles each year, from one pole to another.</p>
 
   <p>
+    <a href="https://zyf8827.github.io/tern-website/"><img src="https://img.shields.io/badge/website-zyf8827.github.io-blue" alt="Website" /></a>
     <a href="https://github.com/zyf8827/tern/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License" /></a>
     <a href="https://github.com/zyf8827/tern/actions/workflows/ci.yml"><img src="https://img.shields.io/badge/ci-passing-brightgreen.svg" alt="CI Status" /></a>
     <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg" alt="Node Version" /></a>
@@ -15,6 +16,9 @@
 
   <p>
     <a href="./README.md">简体中文</a> | <b>English</b>
+  </p>
+  <p>
+    Website: <a href="https://zyf8827.github.io/tern-website/">https://zyf8827.github.io/tern-website/</a>
   </p>
 </div>
 
