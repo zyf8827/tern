@@ -18,6 +18,12 @@ Tern（北极燕鸥）是一个面向 Coding Agent 与开发者的分布式 E2E 
 
 ## 2. 总体架构与系统拓扑
 
+<p align="center">
+  <img src="architecture.png" alt="Tern system architecture" width="900" />
+</p>
+
+> 注：架构图 PNG 由 [architecture.mmd](architecture.mmd) 渲染生成（Rendered from architecture.mmd）。
+
 ```mermaid
 flowchart TD
     subgraph Clients["客户端与接入层"]

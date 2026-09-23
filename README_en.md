@@ -26,6 +26,16 @@ In real-world engineering, the primary barrier in E2E testing is the heavy cost 
 
 ---
 
+## System Architecture
+
+<p align="center">
+  <img src="docs/architecture.png" alt="Tern system architecture" width="900" />
+</p>
+
+Web / Coding Agent / CLI → Tern Server → outbound Worker pool: cases from Git, default SQLite with optional MySQL/PostgreSQL. See [docs/architecture.md](docs/architecture.md).
+
+---
+
 ## Core Features
 
 - **Codebase as Test Suite**: Test cases live in standalone Git repositories under `cases/**/*.spec.ts`. The platform reads and indexes them without mutating source code; Case IDs are deterministically resolved by file path (e.g. `portal/order/checkout`).

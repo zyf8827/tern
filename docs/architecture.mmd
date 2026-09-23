@@ -1,0 +1,37 @@
+flowchart TD
+    subgraph Clients["Clients"]
+        WebUser["Web Console"]
+        CodingAgent["Coding Agent<br/>MCP / Skill"]
+        CLIUser["CLI / CI"]
+    end
+
+    subgraph Server["Tern Server :7430"]
+        RestAPI["REST API"]
+        WSGateway["WebSocket Gateway"]
+        SyncEngine["Case Syncer"]
+        Scheduler["Run Scheduler"]
+        DB[("SQLite / MySQL / PostgreSQL")]
+        ArtifactStore["Artifacts<br/>Local / S3"]
+    end
+
+    subgraph Workers["Worker Pool"]
+        Worker1["Worker #1<br/>Playwright + slots"]
+        WorkerN["Worker #N<br/>Playwright + slots"]
+    end
+
+    CaseRepo[("Git Case Repos<br/>cases/**/*.spec.ts")]
+
+    WebUser -->|HTTP / WS| Server
+    CodingAgent -->|MCP| Server
+    CLIUser -->|REST| Server
+
+    SyncEngine --> CaseRepo
+    SyncEngine --> DB
+    Scheduler --> DB
+    Scheduler --> WSGateway
+    RestAPI --> Scheduler
+
+    WSGateway <-->|outbound WS| Worker1
+    WSGateway <-->|outbound WS| WorkerN
+    Worker1 -->|screenshots / traces| ArtifactStore
+    WorkerN -->|screenshots / traces| ArtifactStore
