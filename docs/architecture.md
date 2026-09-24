@@ -38,7 +38,7 @@ flowchart TD
         SyncEngine["用例同步与打包器 (Case Syncer)"]
         Scheduler["运行调度器 (Run Scheduler)"]
         DB[(默认 SQLite（可选 MySQL/PostgreSQL）)]
-        ArtifactStore["产物与日志存储 (Local Disk / S3)"]
+        ArtifactStore["产物与日志存储 (Local Disk)"]
     end
 
     subgraph Workers["分布式 Worker 节点池"]
