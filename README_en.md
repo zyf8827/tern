@@ -40,6 +40,34 @@ _Lightweight, distributed E2E testing architecture for Coding Agents and develop
 
 ---
 
+## Console Preview
+
+<p align="center">
+  <img src="docs/assets/console-projects.png" alt="Projects page" width="900" />
+</p>
+
+_Projects: Manage Git test repositories and sync status (portal demo project)._
+
+<p align="center">
+  <img src="docs/assets/console-cases.png" alt="Case library" width="900" />
+</p>
+
+_Case Library: Read-only indexing of Git test cases with project, version, module, and tag filters._
+
+<p align="center">
+  <img src="docs/assets/console-runs.png" alt="Test runs list" width="900" />
+</p>
+
+_Test Runs: Overview of test execution batches, pass/fail status summaries, and dispatch records._
+
+<p align="center">
+  <img src="docs/assets/console-run-detail.png" alt="Run detail" width="900" />
+</p>
+
+_Run Detail: Execution progress, runtime parameters, and case results for a test run (Demo selfcheck)._
+
+---
+
 ## Core Features
 
 - **Codebase as Test Suite**: Test cases live in standalone Git repositories under `cases/**/*.spec.ts`. The platform reads and indexes them without mutating source code; Case IDs are deterministically resolved by file path (e.g. `portal/order/checkout`).

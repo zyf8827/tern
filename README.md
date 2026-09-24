@@ -40,6 +40,34 @@ _面向 Coding Agent 与开发者的轻量分布式 E2E 测试架构。详见 [d
 
 ---
 
+## 控制台预览
+
+<p align="center">
+  <img src="docs/assets/console-projects.png" alt="用例项目列表" width="900" />
+</p>
+
+_用例项目：管理 Git 测试仓库与同步状态（内置 portal 演示项目）。_
+
+<p align="center">
+  <img src="docs/assets/console-cases.png" alt="用例库" width="900" />
+</p>
+
+_用例库：只读索引 Git 仓库用例，支持按项目、版本、模块与标签多维筛选。_
+
+<p align="center">
+  <img src="docs/assets/console-runs.png" alt="测试运行列表" width="900" />
+</p>
+
+_测试运行：查看批量测试任务执行状态、通过统计与派发记录。_
+
+<p align="center">
+  <img src="docs/assets/console-run-detail.png" alt="运行详情" width="900" />
+</p>
+
+_运行详情：查看单次测试运行进度、运行参数与各用例执行结果（Demo selfcheck）。_
+
+---
+
 ## 核心特性
 
 - **代码库即用例库**：测试用例直接保存在独立 Git 仓库的 `cases/**/*.spec.ts` 中。平台只读拉取与索引，不侵入源码，Case ID 按相对路径确定（如 `portal/order/checkout`）。
