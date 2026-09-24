@@ -249,6 +249,84 @@ export function markWorkerOffline(rt: Runtime, workerId: string): void {
 
 // ---------- 调度 ----------
 
+export interface ItemRow {
+  id: string;
+  batch_id: string;
+  case_id: string;
+  position: number;
+  status: string;
+  attempt: number;
+  max_attempts: number;
+  batch_worker_id?: string | null;
+  /** 多环境上下文（测试集）条目的 run_envs 行；NULL = 沿用 batches 级参数 */
+  run_env_id?: number | null;
+}
+
+export type DependsGateResult = 'ready' | 'wait' | { cancel: string };
+
+/**
+ * 校验用例级串行依赖门禁：
+ * - 依赖项在同批次同环境（run_env_id NULL-safe）未完成 → 'wait'
+ * - 依赖项在同批次同环境进入非 passed 终态（failed/timed_out/error/cancelled/skipped）→ { cancel: string }
+ * - 依赖项全 passed 或不在本批次（软依赖）→ 'ready'
+ */
+export function dependsGate(rt: Runtime, item: ItemRow): DependsGateResult {
+  const row = rt.db.prepare('SELECT meta FROM cases WHERE id = ?').get(item.case_id) as
+    | { meta?: string | null }
+    | undefined;
+  if (!row?.meta) return 'ready';
+
+  let metaObj: { depends?: unknown };
+  try {
+    metaObj = JSON.parse(row.meta);
+  } catch {
+    return 'ready';
+  }
+
+  if (!metaObj || !Array.isArray(metaObj.depends) || metaObj.depends.length === 0) {
+    return 'ready';
+  }
+
+  const projectPrefix = item.case_id.split('/')[0];
+  let hasPendingDep = false;
+
+  for (const dep of metaObj.depends) {
+    if (typeof dep !== 'string' || !dep.trim()) continue;
+    const depStr = dep.trim();
+    const fullDepId = depStr.startsWith(`${projectPrefix}/`)
+      ? depStr
+      : `${projectPrefix}/${depStr}`;
+
+    const envClause = item.run_env_id == null ? 'run_env_id IS NULL' : 'run_env_id = ?';
+    const envParam = item.run_env_id == null ? [] : [item.run_env_id];
+    const depRow = rt.db
+      .prepare(
+        `SELECT status FROM batch_items WHERE batch_id = ? AND case_id = ? AND ${envClause}`,
+      )
+      .get(item.batch_id, fullDepId, ...envParam) as { status: string } | undefined;
+
+    if (!depRow) {
+      // 依赖用例不在本批次/本环境：软依赖，不阻断
+      continue;
+    }
+
+    if (depRow.status === 'passed') {
+      continue;
+    }
+
+    if (depRow.status === 'pending' || depRow.status === 'claimed' || depRow.status === 'running') {
+      hasPendingDep = true;
+      continue;
+    }
+
+    // 终态且非 passed：failed / timed_out / error / cancelled / skipped
+    return { cancel: `depends not met: ${depStr} ${depRow.status}` };
+  }
+
+  if (hasPendingDep) return 'wait';
+  return 'ready';
+}
+
 export function schedulerTick(rt: Runtime): void {
   const db = rt.db;
 
@@ -308,7 +386,6 @@ export function schedulerTick(rt: Runtime): void {
   const idleWorkers = [...rt.workers.values()].filter(
     (w) => w.online && w.socket !== null && w.busySlots < w.maxSlots,
   );
-  if (idleWorkers.length === 0) return;
   const pending = db
     .prepare(
       `SELECT bi.*, b.created_at AS batch_created, b.worker_id AS batch_worker_id
@@ -316,7 +393,23 @@ export function schedulerTick(rt: Runtime): void {
        WHERE bi.status='pending' ORDER BY b.created_at, bi.position LIMIT 200`,
     )
     .all() as ItemRow[];
+  if (pending.length === 0) return;
   for (const item of pending) {
+    const gate = dependsGate(rt, item);
+    if (gate === 'wait') {
+      continue;
+    }
+    if (typeof gate === 'object' && 'cancel' in gate) {
+      const now = new Date().toISOString();
+      db.prepare(
+        `UPDATE batch_items SET status='cancelled', finished_at=?, last_error=? WHERE id=?`,
+      ).run(now, gate.cancel, item.id);
+      broadcastItem(rt, item.id);
+      recomputeRun(rt, item.batch_id);
+      continue;
+    }
+
+    if (idleWorkers.length === 0) continue;
     // 批次指定了 worker 时只派给该 worker（不在线/满载则留在队列等待）
     const eligible = item.batch_worker_id
       ? idleWorkers.filter((w) => w.id === item.batch_worker_id)
@@ -328,19 +421,6 @@ export function schedulerTick(rt: Runtime): void {
     assignRun(rt, worker, item);
     worker.busySlots++;
   }
-}
-
-interface ItemRow {
-  id: string;
-  batch_id: string;
-  case_id: string;
-  position: number;
-  status: string;
-  attempt: number;
-  max_attempts: number;
-  batch_worker_id?: string | null;
-  /** 多环境上下文（测试集）条目的 run_envs 行；NULL = 沿用 batches 级参数 */
-  run_env_id?: number | null;
 }
 
 /** 解析用例的登录说明：run 的 auth 快照（scope.auth）+ frontmatter auth 名 + AUTH_ACCOUNT 运行参数 */

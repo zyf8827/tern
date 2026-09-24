@@ -1,5 +1,7 @@
 import { parse as yamlParse } from 'yaml';
 
+const KEBAB = /^[a-z][a-z0-9-]*$/;
+
 export type CaseTraceMode = 'off' | 'on' | 'retain-on-failure';
 
 export interface CaseMeta {
@@ -19,6 +21,11 @@ export interface CaseMeta {
    * - 数组形式：['mic', 'camera']（仅启用 fake 设备，用默认音/画面）
    */
   devices?: { mic?: string; camera?: string } | string[];
+  /**
+   * 用例级串行依赖（相对 casesDir 的用例路径，不带 .spec.ts，如 auth/login-page）。
+   * 仅在同批次同环境生效。自依赖与环形依赖在 sync 阶段校验并报错。
+   */
+  depends?: string[];
   timeout?: number;
   retries?: number;
   disabled?: boolean;
@@ -184,6 +191,35 @@ function buildMeta(yamlText: string, raw: string): FrontmatterResult {
       errors.push('devices 必须是对象（{ mic: 资产路径 }）或数组（[mic]）');
     }
   }
+  if (doc['depends'] !== undefined) {
+    const d = doc['depends'];
+    if (!Array.isArray(d)) {
+      errors.push('depends 必须是相对用例 ID 的字符串数组（如 [auth/login-page]）');
+    } else {
+      const list: string[] = [];
+      let ok = true;
+      for (const item of d) {
+        if (typeof item !== 'string' || !item.trim()) {
+          errors.push('depends 数组元素必须是非空字符串');
+          ok = false;
+          break;
+        }
+        const trimmed = item.trim();
+        const segs = trimmed.split('/');
+        if (segs.length === 0 || segs.some((s) => !KEBAB.test(s))) {
+          errors.push(
+            `depends 用例 ID "${trimmed}" 格式非法（各路径段须符合小写 kebab-case，如 auth/login-page）`,
+          );
+          ok = false;
+          break;
+        }
+        list.push(trimmed);
+      }
+      if (ok && list.length > 0) {
+        meta.depends = [...new Set(list)];
+      }
+    }
+  }
 
   const known = new Set([
     'title',
@@ -194,6 +230,7 @@ function buildMeta(yamlText: string, raw: string): FrontmatterResult {
     'module',
     'auth',
     'devices',
+    'depends',
     'timeout',
     'retries',
     'trace',

@@ -79,6 +79,7 @@ user-invocable: true
  * version: v2.3            # 被测系统版本（可选）
  * module: login            # 功能模块（可选）
  * auth: admin              # 不写 = 默认登录；none = 不登录；其他 = 账号/配方名
+ * # depends: [auth/login-page] # 串行依赖相对用例 ID 列表（同批同环境生效；未入选软跳过；依赖失败则取消本条）
  * timeout: 60              # 秒，可选，默认 120
  * retries: 0               # runner 内重试次数，可选
  * author: agent
@@ -103,6 +104,8 @@ test('用例名', async ({ page }) => {
 | `禁止 import 平台内部模块`                           | 删除对 `@tern/*` 的 import                                                                                                                                               |
 | `META - frontmatter YAML 解析失败`                   | YAML 值里有裸 `: `，给值加引号或改写                                                                                                                                     |
 | `AUTH_PROFILE_NOT_FOUND`                             | frontmatter `auth:` 引用的名字不存在（单配方 = `accounts` 里的账号名 / 多配方 = 配方名）                                                                                 |
+| `depends cycle: A -> B -> A`                         | 依赖成环；检查用例 frontmatter `depends` 解除闭环                                                                                        |
+| `depends self-reference: X`                          | 用例 frontmatter `depends` 包含了自身；删除自身依赖                                                                                      |
 | 执行报 `ternAsset("x") 不在本次下发的资产中`         | 引用不是字面量调用（被包进函数传参）——把 `ternAsset('x')` 字面量写进用例文件（见 `references/case-pitfalls.md` §1）                                                      |
 | devices 用例集体超时且 REST 正常、页面卡「初始化中」 | BASE_URL 是 `http://<IP>` 非安全源，getUserMedia 被浏览器禁止——平台 F9 设备反向代理默认 auto 自动处理；仍失败则检查平台版本/设置 `device_proxy_mode` 是否为 off（见 §3） |
 | 运行报 `AuthError: 环境变量 XXX 未设置`              | 运行参数或 worker 环境缺少 `${ENV:XXX}` 对应的值                                                                                                                         |

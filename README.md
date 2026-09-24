@@ -43,7 +43,7 @@ Tern 是一个轻量级、分布式的 E2E 测试平台，专为配合 Coding Ag
 ## 核心特性
 
 - **代码库即用例库**：测试用例直接保存在独立 Git 仓库的 `cases/**/*.spec.ts` 中。平台只读拉取与索引，不侵入源码，Case ID 按相对路径确定（如 `portal/order/checkout`）。
-- **原生 Playwright 语法**：用例顶部通过 `@tern` 块注释标注元数据（`title`、`tags`、`module`、`version`、`auth`、`timeout`、`devices` 等），正文完全采用标准 Playwright Test API，无任何私有 DSL。
+- **原生 Playwright 语法**：用例顶部通过 `@tern` 块注释标注元数据（`title`、`tags`、`module`、`version`、`auth`、`timeout`、`devices`、`depends` 等），正文完全采用标准 Playwright Test API，无任何私有 DSL。支持 `depends: [path/case]` 声明同批次同环境下的用例级串行依赖门禁。
 - **声明式登录配方（Auth Recipes）**：登录逻辑集中定义在用例仓库的 `tern.yaml`（支持 `api`、`form`、`storage` 三种模式），由 Worker 在测试执行前自动构建并注入 Playwright `storageState`；敏感凭据通过 `${ENV:VAR}` 占位符隔离，平台端加密存储（AES-256-GCM）且 API 永不回显。
 - **测试集与多环境去重调度**：支持声明式测试集（Test Suite），一次测试运行可关联多个测试集，各自绑定不同的执行环境（如 dev / staging），平台按 `(用例 × 环境)` 组合精确去重并行派发。
 - **被动出站 Worker**：Worker 节点主动向 Server 建立 WebSocket 长连接拉取任务，不监听外部入站端口，便于跨网络或容器化部署；支持并发槽位（Slots）限制。

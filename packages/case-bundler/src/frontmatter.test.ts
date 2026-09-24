@@ -141,3 +141,76 @@ test('devices：非法形态被拒绝', () => {
     assert.ok(fm!.errors.length > 0, `应报错: ${d}`);
   }
 });
+
+test('depends：合法相对用例列表解析', () => {
+  const src = `/**
+ * @tern
+ * title: 依赖测试
+ * depends:
+ *   - auth/login-page
+ *   - common/setup-db
+ *   - deep/nested/case-item
+ */
+`;
+  const fm = parseFrontmatter(src)!;
+  assert.equal(fm.errors.length, 0);
+  assert.deepEqual(fm.meta.depends, ['auth/login-page', 'common/setup-db', 'deep/nested/case-item']);
+  // 已知字段不落入自由 meta
+  assert.deepEqual(fm.meta.meta, {});
+});
+
+test('depends：非数组被拒绝', () => {
+  const fm = parseFrontmatter(`/**
+ * @tern
+ * title: 测试
+ * depends: auth/login-page
+ */
+`)!;
+  assert.ok(fm.errors.some((e) => e.includes('depends 必须是相对用例 ID 的字符串数组')));
+  assert.equal(fm.meta.depends, undefined);
+});
+
+test('depends：非字符串元素或空字符串被拒绝', () => {
+  const bads = [
+    'depends: [123]',
+    'depends: [""]',
+    'depends: ["   "]',
+    'depends: [null]',
+    'depends: [{ id: "foo" }]',
+  ];
+  for (const b of bads) {
+    const fm = parseFrontmatter(`/**\n * @tern\n * title: t\n * ${b}\n */`)!;
+    assert.ok(fm.errors.some((e) => e.includes('depends 数组元素必须是非空字符串')), `应拒绝: ${b}`);
+  }
+});
+
+test('depends：非法 ID 格式（大写/下划线/路径前后斜杠/扩展名）被拒绝', () => {
+  const bads = [
+    'depends: [Auth/login]',
+    'depends: [auth_login]',
+    'depends: [auth/login.spec.ts]',
+    'depends: [/auth/login]',
+    'depends: [auth/login/]',
+    'depends: [auth//login]',
+    'depends: [-auth/login]',
+  ];
+  for (const b of bads) {
+    const fm = parseFrontmatter(`/**\n * @tern\n * title: t\n * ${b}\n */`)!;
+    assert.ok(fm.errors.some((e) => e.includes('格式非法')), `应拒绝: ${b}`);
+  }
+});
+
+test('depends：去重与空格修剪', () => {
+  const src = `/**
+ * @tern
+ * title: 去重
+ * depends:
+ *   - " auth/login "
+ *   - auth/login
+ */
+`;
+  const fm = parseFrontmatter(src)!;
+  assert.equal(fm.errors.length, 0);
+  assert.deepEqual(fm.meta.depends, ['auth/login']);
+});
+

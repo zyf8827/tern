@@ -43,7 +43,7 @@ In real-world engineering, the primary barrier in E2E testing is the heavy cost 
 ## Core Features
 
 - **Codebase as Test Suite**: Test cases live in standalone Git repositories under `cases/**/*.spec.ts`. The platform reads and indexes them without mutating source code; Case IDs are deterministically resolved by file path (e.g. `portal/order/checkout`).
-- **Native Playwright Syntax**: Test cases specify metadata (`title`, `tags`, `module`, `version`, `auth`, `timeout`, `devices`, etc.) in top-of-file `@tern` block comments. Test bodies use standard Playwright Test APIs with zero private DSL lock-in.
+- **Native Playwright Syntax**: Test cases specify metadata (`title`, `tags`, `module`, `version`, `auth`, `timeout`, `devices`, `depends`, etc.) in top-of-file `@tern` block comments. Test bodies use standard Playwright Test APIs with zero private DSL lock-in. Supports case-level serial dependencies (`depends: [path/case]`) within the same batch and environment.
 - **Declarative Auth Recipes**: Authentication flows are declared in `tern.yaml` (`api`, `form`, or `storage` modes) and injected as Playwright `storageState` by workers before execution. Secrets use `${ENV:VAR}` placeholders and are stored encrypted (AES-256-GCM) on the platform, never echoed via API.
 - **Test Suites & Multi-Environment Scheduling**: Named test suites combine selectors and environment bindings. A single run can trigger multiple suites across different environments (e.g. dev, staging), automatically deduplicating execution by `(case × environment)`.
 - **Passive Outbound Workers**: Worker nodes initiate outbound WebSocket connections to the Server without requiring open inbound ports, simplifying cross-network and containerized deployment with slot-based concurrency.
