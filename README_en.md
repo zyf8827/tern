@@ -36,7 +36,7 @@ In real-world engineering, the primary barrier in E2E testing is the heavy cost 
   <img src="docs/architecture.png" alt="Tern system architecture" width="900" />
 </p>
 
-*Lightweight, distributed E2E testing architecture for Coding Agents and developers. See [docs/architecture.md](docs/architecture.md).*
+_Lightweight, distributed E2E testing architecture for Coding Agents and developers. See [docs/architecture.md](docs/architecture.md)._
 
 ---
 
@@ -52,6 +52,7 @@ In real-world engineering, the primary barrier in E2E testing is the heavy cost 
 - **Schedules & Webhooks**: Built-in 5-field Cron scheduler for automated regression, supporting generic HTTP Webhooks and DingTalk bots.
 
 ## Database
+
 Defaults to SQLite (zero-config, `data/platform.db`).
 For MySQL or PostgreSQL, configure via environment variables `DB_DIALECT` and `DATABASE_URL` (or discrete `DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASSWORD`/`DB_NAME`). See [Deployment](docs/deploy.md) for details.
 
@@ -80,8 +81,17 @@ bash scripts/dev.sh up 1
 # http://127.0.0.1:7430
 ```
 
+> **First-run Demo**:
+>
+> After starting the server with `scripts/dev.sh up`, run the demo command to seed the built-in `portal` demo project from fixtures via local `file://` git and start the demo site, then open the console to run a demo case:
+>
+> ```bash
+> bash scripts/dev.sh demo
+> ```
+
 Useful commands:
 
+- Seed/sync demo project: `bash scripts/dev.sh demo`
 - Check status: `bash scripts/dev.sh status`
 - View logs: `bash scripts/dev.sh logs`
 - Stop processes: `bash scripts/dev.sh down`

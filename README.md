@@ -36,7 +36,7 @@ Tern 是一个轻量级、分布式的 E2E 测试平台，专为配合 Coding Ag
   <img src="docs/architecture.png" alt="Tern system architecture" width="900" />
 </p>
 
-*面向 Coding Agent 与开发者的轻量分布式 E2E 测试架构。详见 [docs/architecture.md](docs/architecture.md)。*
+_面向 Coding Agent 与开发者的轻量分布式 E2E 测试架构。详见 [docs/architecture.md](docs/architecture.md)。_
 
 ---
 
@@ -52,6 +52,7 @@ Tern 是一个轻量级、分布式的 E2E 测试平台，专为配合 Coding Ag
 - **定时与通知**：支持 Cron 定时调度触发回归，支持通用 Webhook 与钉钉机器人发送运行结果通知。
 
 ## 数据库 (Database)
+
 默认使用 SQLite (零配置, `data/platform.db`)。
 如需使用 MySQL 或 PostgreSQL，可通过配置环境变量 `DB_DIALECT` 和 `DATABASE_URL`（或离散的 `DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASSWORD`/`DB_NAME`）实现。详见 [部署文档](docs/deploy.md)。
 
@@ -80,8 +81,17 @@ bash scripts/dev.sh up 1
 # http://127.0.0.1:7430
 ```
 
+> **首次体验（Demo 种子项目）**：
+>
+> 服务启动后，执行如下命令可通过本地 `file://` git 快速载入内置的 `portal` 演示项目并拉起测试站点，随后打开控制台即可直接挑选演示用例运行体验：
+>
+> ```bash
+> bash scripts/dev.sh demo
+> ```
+
 常用命令：
 
+- 载入/同步演示项目：`bash scripts/dev.sh demo`
 - 查看服务状态：`bash scripts/dev.sh status`
 - 查看日志：`bash scripts/dev.sh logs`
 - 停止服务：`bash scripts/dev.sh down`

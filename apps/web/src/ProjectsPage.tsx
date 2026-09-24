@@ -151,8 +151,12 @@ export function ProjectsPage({ onOpenSuites }: { onOpenSuites?: (project: string
 
       {projects.length === 0 && (
         <div className="text-sm text-gray-500">
-          暂无项目。点击右上角「添加 git 项目」自动拉取用例仓库；也可以把含 tern.yaml 的目录直接放进
-          server 的 REPOS_DIR（默认 ./repos），会自动发现注册。
+          暂无项目。首次体验可执行{' '}
+          <code className="bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-xs font-mono">
+            bash scripts/dev.sh demo
+          </code>{' '}
+          一键载入演示项目（portal）；也可以点击右上角「+ 添加 git
+          项目」拉取实际用例仓库（亦支持本地目录放进 REPOS_DIR 自动发现）。
         </div>
       )}
 
