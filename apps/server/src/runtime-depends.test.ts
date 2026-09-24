@@ -180,7 +180,7 @@ test('depends: A pending, B 依赖 A → 第一轮仅派发 A，A 通过后下�
   }
 });
 
-test('depends: A failed → B 自动 cancelled，last_error 包含 depends not met', () => {
+test('depends: A failed → B 自动 skipped，last_error 包含 depends not met', () => {
   const { rt, close } = tmpRt();
   try {
     addCase(rt, 'portal/a');
@@ -198,7 +198,7 @@ test('depends: A failed → B 自动 cancelled，last_error 包含 depends not m
       .prepare('SELECT status, last_error FROM batch_items WHERE batch_id=? AND case_id=?')
       .get(batchId, 'portal/b') as { status: string; last_error: string };
 
-    assert.equal(bRow.status, 'cancelled');
+    assert.equal(bRow.status, 'skipped');
     assert.ok(
       bRow.last_error.includes('depends not met: a failed'),
       `last_error 应包含 depends not met: ${bRow.last_error}`,
@@ -259,7 +259,7 @@ test('depends: 同 batch 但不同 run_env_id → B 不被不同 env 的 A 阻�
   }
 });
 
-test('depends: 传递依赖链路 A → B → C，A 失败逐轮收敛取消 B 与 C', () => {
+test('depends: 传递依赖链路 A → B → C，A 失败逐轮收敛跳过 B 与 C', () => {
   const { rt, close } = tmpRt();
   try {
     addCase(rt, 'portal/a');
@@ -273,7 +273,7 @@ test('depends: 传递依赖链路 A → B → C，A 失败逐轮收敛取消 B �
       { caseId: 'portal/c', status: 'pending' },
     ]);
 
-    // 执行调度 tick（B 被 cancel，同一 tick 或下一 tick C 也会因 B 终态非 passed 而 cancel）
+    // 执行调度 tick（B 被 skip，同一 tick 或下一 tick C 也会因 B 终态非 passed 而 skip）
     schedulerTick(rt);
     schedulerTick(rt);
 
@@ -282,12 +282,12 @@ test('depends: 传递依赖链路 A → B → C，A 失败逐轮收敛取消 B �
       .all(batchId) as { case_id: string; status: string; last_error: string }[];
 
     assert.equal(items[1].case_id, 'portal/b');
-    assert.equal(items[1].status, 'cancelled');
+    assert.equal(items[1].status, 'skipped');
     assert.ok(items[1].last_error.includes('depends not met: a failed'));
 
     assert.equal(items[2].case_id, 'portal/c');
-    assert.equal(items[2].status, 'cancelled');
-    assert.ok(items[2].last_error.includes('depends not met: b cancelled'));
+    assert.equal(items[2].status, 'skipped');
+    assert.ok(items[2].last_error.includes('depends not met: b skipped'));
   } finally {
     close();
   }

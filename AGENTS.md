@@ -66,7 +66,7 @@ auth: # 可选，登录配方（拍平结构，有顶层 mode = 单配方；见�
  * version: v2.3            # 被测系统版本（可选，多维度筛选用）
  * module: login            # 功能模块（可选）
  * auth: admin             # 不写 = 默认登录；none = 不登录；其他 = 账号/配方名（可选）
- * # depends: [auth/login-page] # 串行依赖相对用例 ID 列表（同批同环境生效；未入选软跳过；依赖失败则取消本条）
+ * # depends: [auth/login-page] # 串行依赖相对用例 ID 列表（同批同环境生效；未入选软跳过；依赖失败则跳过本条）
  * timeout: 60              # 秒，可选，默认 120
  * retries: 0               # runner 内重试次数，可选
  * author: agent
@@ -103,7 +103,7 @@ test('用例名', async ({ page }) => {
 | 多维筛选    | `project` / `version`（被测系统版本）/ `module`（功能模块）/ `tags`（自由标签）组合筛选，CLI/API/MCP/Web 一致                                                                         |
 | 命名        | 目录与文件名小写 kebab-case（`[a-z0-9-]`）；`_` 前缀目录是用例间共享的工具库，不参与调度                                                                                              |
 | 参数        | 测试运行参数经环境变量注入；`BASE_URL` 自动映射为 `page` 的 baseURL（auth 的相对地址也用它拼接），其余用 `process.env.XXX ?? 默认值`                                                  |
-| 依赖 / 顺序 | 默认无序并行；如需用例级串行依赖，可在 frontmatter 声明 `depends: [auth/login-page]`（同批同环境生效；未入选依赖软跳过；依赖非 passed 终态则本条 cancelled；环形依赖 sync 报错） |
+| 依赖 / 顺序 | 默认无序并行；如需用例级串行依赖，可在 frontmatter 声明 `depends: [auth/login-page]`（同批同环境生效；未入选依赖软跳过；依赖非 passed 终态则本条 skipped；环形依赖 sync 报错） |
 | 日志        | 用 `console.log`（实时回传）与 `test.step()`（步骤时间线）                                                                                                                            |
 | 产物        | 失败自动截图 + trace（runner 原生）；自定义产物用 `testInfo.attach()`                                                                                                                 |
 | 跳过 / 停用 | 原生 `test.skip()` / `test.fixme()` → `skipped`；frontmatter `disabled: true` → 不参与调度                                                                                            |

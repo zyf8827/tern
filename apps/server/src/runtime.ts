@@ -402,7 +402,7 @@ export function schedulerTick(rt: Runtime): void {
     if (typeof gate === 'object' && 'cancel' in gate) {
       const now = new Date().toISOString();
       db.prepare(
-        `UPDATE batch_items SET status='cancelled', finished_at=?, last_error=? WHERE id=?`,
+        `UPDATE batch_items SET status='skipped', finished_at=?, last_error=? WHERE id=?`,
       ).run(now, gate.cancel, item.id);
       broadcastItem(rt, item.id);
       recomputeRun(rt, item.batch_id);

@@ -79,7 +79,7 @@ user-invocable: true
  * version: v2.3            # 被测系统版本（可选）
  * module: login            # 功能模块（可选）
  * auth: admin              # 不写 = 默认登录；none = 不登录；其他 = 账号/配方名
- * # depends: [auth/login-page] # 串行依赖相对用例 ID 列表（同批同环境生效；未入选软跳过；依赖失败则取消本条）
+ * # depends: [auth/login-page] # 串行依赖相对用例 ID 列表（同批同环境生效；未入选软跳过；依赖失败则跳过本条）
  * timeout: 60              # 秒，可选，默认 120
  * retries: 0               # runner 内重试次数，可选
  * author: agent
